@@ -1,0 +1,119 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div class="page-header__title">
+      <h1 class="page-title">Órdenes</h1>
+      <p class="page-subtitle">Gestión completa de pedidos, envíos y totales</p>
+    </div>
+    <div class="page-header__actions">
+      <button type="button" class="filter-toggle-btn" [class.active]="filtersExpanded()" (click)="filtersExpanded.set(!filtersExpanded())">
+        Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
+      </button>
+      <button type="button" class="action-button action-create" (click)="openCreateModal()">
+        <span aria-hidden="true">＋</span><span>Nueva orden</span>
+      </button>
+    </div>
+  </header>
+
+  <form [formGroup]="listForm" class="filter-panel" [class.open]="filtersExpanded()">
+    <div class="filter-panel__body">
+      <label class="filter-label"><span>Estado</span><select formControlName="status"><option value="">Todos</option><option *ngFor="let status of orderStatuses" [value]="status">{{ status }}</option></select></label>
+      <label class="filter-label"><span>Ordenar por</span><select formControlName="sortBy"><option value="createdAt">Creación</option><option value="updatedAt">Actualización</option><option value="subtotal">Subtotal</option><option value="taxTotal">IVA</option><option value="shippingPrice">Shipping</option><option value="total">Total</option></select></label>
+      <label class="filter-label"><span>Dirección</span><select formControlName="sortOrder"><option value="desc">Descendente</option><option value="asc">Ascendente</option></select></label>
+      <label class="filter-label"><span>Por página</span><select formControlName="pageSize"><option [value]="10">10</option><option [value]="20">20</option><option [value]="50">50</option></select></label>
+    </div>
+  </form>
+
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
+  <section class="section-card">
+    <div class="table-wrapper" *ngIf="response">
+        <table>
+          <thead><tr><th>Orden</th><th>Cliente</th><th>Entrega</th><th>Totales</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let order of response.items">
+              <td>{{ order.code }}<div class="muted">{{ order.createdAt | date:'short' }}</div><div class="muted">Registró: {{ order.user?.firstName }} {{ order.user?.lastName }}</div><div class="muted" *ngIf="order.paymentProvider === 'mercadopago'">MP · {{ order.paymentReference }}</div></td>
+              <td>{{ order.customerName || 'Sin nombre' }}<div class="muted">{{ order.customerEmail || 'Sin email' }}</div><div class="muted">{{ order.customerPhone || 'Sin teléfono' }}</div></td>
+              <td>{{ order.shipping?.name || 'Sin envío' }}<div class="muted">{{ order.shippingAddress || 'Sin dirección de entrega' }}</div><div class="muted">{{ order.includesCard ? (order.cardMessage ? ('Tarjeta: ' + order.cardMessage) : 'Tarjeta incluida sin mensaje') : 'Sin tarjeta' }}</div><div class="muted">{{ order.shipping?.includesPrice ? (order.shipping?.price | currency:'COP':'symbol-narrow':'1.0-0') : 'No suma al total' }}</div></td>
+              <td>Sub: {{ order.subtotal | currency:'COP':'symbol-narrow':'1.0-0' }}<br />IVA: {{ order.taxTotal | currency:'COP':'symbol-narrow':'1.0-0' }}<br />Total: {{ order.total | currency:'COP':'symbol-narrow':'1.0-0' }}</td>
+              <td><span class="status-pill">{{ order.status }}</span></td>
+              <td>
+                <div class="table-actions table-actions--compact">
+                  <button type="button" class="icon-button action-edit" (click)="editOrder(order)" title="Editar orden" aria-label="Editar orden">✎</button>
+                  <button type="button" class="icon-button action-delete" (click)="deleteOrder(order)" title="Eliminar orden" aria-label="Eliminar orden">🗑</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-bar" *ngIf="response"><button type="button" class="secondary-button" (click)="changePage(-1)" [disabled]="response.pagination.page <= 1">Anterior</button><span>Página {{ response.pagination.page }} de {{ response.pagination.totalPages || 1 }}</span><button type="button" class="secondary-button" (click)="changePage(1)" [disabled]="response.pagination.page >= response.pagination.totalPages">Siguiente</button></div>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="isFormModalOpen">
+    <section class="modal-card modal-card--wide" role="dialog" aria-modal="true">
+      <header class="modal-header">
+        <div>
+          <h3>{{ editingOrderCode ? ('Editar ' + editingOrderCode) : 'Nueva orden' }}</h3>
+          <p>Construye la orden en una sola vista con ítems, shipping y totales estimados.</p>
+        </div>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar">✕</button>
+      </header>
+
+      <div *ngIf="isPaidWithMercadoPago" class="mp-lock-notice">
+        <strong>Pago MercadoPago</strong> — Solo puedes editar el estado y la tarjeta del pedido.
+        <div class="mp-reference-row">
+          <span class="mp-reference-label">Referencia MP:</span>
+          <code class="mp-reference-value">{{ editingOrder?.paymentReference }}</code>
+          <button type="button" class="icon-button action-neutral" (click)="copyReference()" title="Copiar referencia" aria-label="Copiar referencia">⎘</button>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
+        <div class="form-grid">
+          <label><span>Usuario</span><select formControlName="userId"><option [value]="0">Selecciona</option><option *ngFor="let user of users" [value]="user.id">{{ user.firstName }} {{ user.lastName }} · {{ user.email }}</option></select></label>
+          <label><span>Nombre cliente</span><input type="text" formControlName="customerName" placeholder="Quién recibe el pedido" /></label>
+          <label><span>Email cliente</span><input type="email" formControlName="customerEmail" placeholder="cliente@correo.com" /></label>
+          <label><span>Teléfono cliente</span><input type="text" formControlName="customerPhone" placeholder="3001234567" /></label>
+          <label><span>Estado</span><select formControlName="status"><option *ngFor="let status of orderStatuses" [value]="status">{{ status }}</option></select></label>
+          <label><span>Método de envío</span><select formControlName="shippingMethodId"><option value="">Sin envío</option><option *ngFor="let shippingMethod of shippingMethods" [value]="shippingMethod.id">{{ shippingMethod.name }} · {{ (shippingMethod.price ?? 0) | currency:'COP':'symbol-narrow':'1.0-0' }}</option></select></label>
+          <label><span>Precio envío</span><input type="number" min="0" step="0.01" formControlName="shippingPrice" [placeholder]="shippingPricePlaceholder()" /></label>
+          <label class="checkbox-item"><input type="checkbox" formControlName="includeShippingPrice" /><span>Sumar shipping al total</span></label>
+          <label class="checkbox-item"><input type="checkbox" formControlName="includesCard" /><span>Agregar tarjeta al pedido</span></label>
+        </div>
+
+        <label><span>Dirección de envío</span><textarea rows="2" formControlName="shippingAddress" placeholder="Dirección, barrio, ciudad y referencias"></textarea></label>
+
+        <label *ngIf="form.controls.includesCard.value"><span>Mensaje en la tarjeta</span><textarea rows="3" formControlName="cardMessage" placeholder="Escribe el mensaje que acompañará el arreglo"></textarea></label>
+
+        <div class="inline-grid">
+          <h3>Items</h3>
+          <div formArrayName="items" class="inline-grid">
+            <div class="item-row" *ngFor="let item of items.controls; let index = index" [formGroupName]="index">
+              <select formControlName="productId">
+                <option [value]="0">Selecciona producto</option>
+                <option *ngFor="let product of products" [value]="product.id">{{ product.name }} · {{ product.price | currency:'COP':'symbol-narrow':'1.0-0' }} · stock {{ product.stock }}</option>
+              </select>
+              <input type="number" min="1" step="1" formControlName="quantity" placeholder="Cantidad" />
+              <button type="button" class="icon-button action-delete" (click)="removeItem(index)" title="Quitar item" aria-label="Quitar item" *ngIf="!isPaidWithMercadoPago">🗑</button>
+            </div>
+          </div>
+          <button type="button" class="action-button action-create" (click)="addItem()" *ngIf="!isPaidWithMercadoPago"><span aria-hidden="true">＋</span><span>Agregar item</span></button>
+        </div>
+
+        <div class="summary-card">
+          <h3>Vista previa</h3>
+          <p>Subtotal: {{ orderPreview().subtotal | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
+          <p>IVA: {{ orderPreview().taxTotal | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
+          <p>Shipping: {{ orderPreview().shipping | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
+          <p><strong>Total: {{ orderPreview().total | currency:'COP':'symbol-narrow':'1.0-0' }}</strong></p>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="action-button action-create"><span aria-hidden="true">{{ editingOrderCode ? '✓' : '＋' }}</span><span>{{ editingOrderCode ? 'Guardar cambios' : 'Crear orden' }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><span aria-hidden="true">✕</span><span>Cancelar</span></button>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>

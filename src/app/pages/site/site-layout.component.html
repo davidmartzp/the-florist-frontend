@@ -1,0 +1,97 @@
+<div class="site-app">
+  <header class="site-header">
+    <div class="site-container site-header__content">
+      <a routerLink="/" class="site-brand" aria-label="La Florería inicio">
+        <img [src]="logoUrl" alt="La Florería by Flores Colón" />
+      </a>
+
+      <nav class="site-nav" aria-label="Navegación principal">
+        <a
+          *ngFor="let item of navItems"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+        >
+          {{ item.label }}
+        </a>
+      </nav>
+
+      <div class="site-header__actions">
+        <a routerLink="/carrito" class="site-cart">
+          <span>Carrito</span>
+          <strong>{{ cartCount() }}</strong>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-container">
+      <div class="site-footer__grid">
+        <div class="site-footer__brand">
+          <img [src]="footerLogoUrl" alt="La Florería by Flores Colón" />
+          <p class="site-footer__tagline">La magia de las flores</p>
+          <p class="site-footer__description">
+            Más de 40 años cultivando la belleza y frescura de las flores colombianas para regalos,
+            experiencias y marcas que quieren emocionar.
+          </p>
+        </div>
+
+        <div class="site-footer__column">
+          <h3>Compra</h3>
+          <nav aria-label="Navegación de compra">
+            <a routerLink="/" fragment="productos">Ver productos</a>
+            <a routerLink="/" fragment="productos">Destacados</a>
+            <a routerLink="/carrito">Carrito</a>
+            <a routerLink="/checkout">Checkout</a>
+          </nav>
+        </div>
+
+        <div class="site-footer__column">
+          <h3>Servicio</h3>
+          <ul>
+            <li>Entregas en Bogotá</li>
+            <li>Empaque especial</li>
+            <li>Tarjeta personalizada</li>
+          </ul>
+        </div>
+
+        <div class="site-footer__column">
+          <h3>Contacto</h3>
+          <ul>
+            <li>
+              <span class="site-footer__icon" aria-hidden="true">&#8962;</span>
+              Bogotá, Colombia
+            </li>
+            <li>
+              <a href="https://wa.me/573168758525" target="_blank" rel="noopener noreferrer">
+                <span class="site-footer__icon" aria-hidden="true">&#9993;</span>
+                WhatsApp
+              </a>
+            </li>
+            <li>
+              <a href="tel:+573168758525">
+                <span class="site-footer__icon" aria-hidden="true">&#9742;</span>
+                +57 316 8758525
+              </a>
+            </li>
+            <li>
+              <a href="tel:+573168758525">
+                <span class="site-footer__icon" aria-hidden="true">&#9742;</span>
+                +57 316 8758525
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="site-footer__bottom">
+        <p>&copy; {{ currentYear() }} La Florería by Flores Colón. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+</div>

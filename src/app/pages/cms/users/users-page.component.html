@@ -1,0 +1,118 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div class="page-header__title">
+      <h1 class="page-title">Usuarios</h1>
+      <p class="page-subtitle">Acceso interno, permisos y gestión de colaboradores</p>
+    </div>
+    <div class="page-header__actions">
+      <button type="button" class="filter-toggle-btn" [class.active]="filtersExpanded()" (click)="filtersExpanded.set(!filtersExpanded())">
+        Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
+      </button>
+      <button type="button" class="action-button action-create" (click)="openCreateModal()">
+        <span aria-hidden="true">＋</span><span>Nuevo usuario</span>
+      </button>
+    </div>
+  </header>
+
+  <form [formGroup]="listForm" class="filter-panel" [class.open]="filtersExpanded()">
+    <div class="filter-panel__body">
+      <label class="filter-label">
+        <span>Ordenar por</span>
+        <select formControlName="sortBy">
+          <option value="createdAt">Creación</option>
+          <option value="email">Correo</option>
+          <option value="firstName">Nombre</option>
+          <option value="lastName">Apellido</option>
+          <option value="isActive">Estado</option>
+        </select>
+      </label>
+      <label class="filter-label"><span>Dirección</span><select formControlName="sortOrder"><option value="desc">Descendente</option><option value="asc">Ascendente</option></select></label>
+      <label class="filter-label"><span>Por página</span><select formControlName="pageSize"><option [value]="10">10</option><option [value]="20">20</option><option [value]="50">50</option></select></label>
+    </div>
+  </form>
+
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
+  <section class="section-card">
+    <div class="table-wrapper" *ngIf="response; else loadingUsers">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Permisos</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of response.items">
+              <td>{{ user.firstName }} {{ user.lastName }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <div class="badge-list">
+                  <span class="badge" *ngFor="let permission of user.permissions">{{ permission }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="status-pill">{{ user.isActive ? 'Activo' : 'Inactivo' }}</span>
+              </td>
+              <td>
+                <div class="table-actions table-actions--compact">
+                  <button type="button" class="icon-button action-edit" (click)="editUser(user)" title="Editar usuario" aria-label="Editar usuario">✎</button>
+                  <button type="button" class="icon-button action-warn" (click)="deactivateUser(user)" [disabled]="!user.isActive" title="Desactivar usuario" aria-label="Desactivar usuario">⛔</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar" *ngIf="response">
+        <button type="button" class="secondary-button" (click)="changePage(-1)" [disabled]="response.pagination.page <= 1">Anterior</button>
+        <span>Página {{ response.pagination.page }} de {{ response.pagination.totalPages || 1 }}</span>
+        <button type="button" class="secondary-button" (click)="changePage(1)" [disabled]="response.pagination.page >= response.pagination.totalPages">Siguiente</button>
+      </div>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="isFormModalOpen">
+    <section class="modal-card" role="dialog" aria-modal="true">
+      <header class="modal-header">
+        <div>
+          <h3>{{ editingUserId ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+          <p>Gestiona acceso interno, permisos y datos básicos del colaborador.</p>
+        </div>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar">✕</button>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
+        <div class="form-grid">
+          <label><span>Correo</span><input type="email" formControlName="email" /></label>
+          <label><span>Nombre</span><input type="text" formControlName="firstName" /></label>
+          <label><span>Apellido</span><input type="text" formControlName="lastName" /></label>
+          <label><span>Contraseña</span><input type="password" formControlName="password" /></label>
+        </div>
+
+        <div>
+          <strong>Permisos</strong>
+          <div class="checkbox-list">
+            <label class="checkbox-item" *ngFor="let permission of accessControlCatalog.permissions">
+              <input type="checkbox" [checked]="hasPermission(permission.code)" (change)="togglePermission(permission.code, $any($event.target).checked)" />
+              <span>{{ permission.code }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="action-button action-create" [disabled]="isSubmitting"><span aria-hidden="true">{{ editingUserId ? '✓' : '＋' }}</span><span>{{ isSubmitting ? 'Guardando...' : (editingUserId ? 'Guardar cambios' : 'Crear usuario') }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><span aria-hidden="true">✕</span><span>Cancelar</span></button>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>
+
+<ng-template #loadingUsers>
+  <p class="empty-state">{{ isLoading ? 'Cargando usuarios...' : 'No hay datos.' }}</p>
+</ng-template>

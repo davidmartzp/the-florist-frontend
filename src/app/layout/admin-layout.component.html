@@ -1,0 +1,36 @@
+<div class="layout-shell">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <a routerLink="/admin-flowers" class="brand-card">
+        <span class="brand-kicker">Panel interno</span>
+        <strong>Florería Colón</strong>
+        <span>Gestión administrativa y operativa</span>
+      </a>
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">Módulos</span>
+        <nav class="nav-list">
+          <a
+            *ngFor="let item of navItems()"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+          >
+            <span class="nav-item-label">{{ item.label }}</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="sidebar-footer" *ngIf="user() as currentUser">
+      <span>{{ currentUser.firstName }} {{ currentUser.lastName }}</span>
+      <button type="button" class="secondary-button" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-panel">
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,73 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div class="page-header__title">
+      <h1 class="page-title">Catálogos</h1>
+      <p class="page-subtitle">Catálogos comerciales y su estado de publicación interna</p>
+    </div>
+    <div class="page-header__actions">
+      <button type="button" class="filter-toggle-btn" [class.active]="filtersExpanded()" (click)="filtersExpanded.set(!filtersExpanded())">
+        Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
+      </button>
+      <button type="button" class="action-button action-create" (click)="openCreateModal()">
+        <span aria-hidden="true">＋</span><span>Nuevo catálogo</span>
+      </button>
+    </div>
+  </header>
+
+  <form [formGroup]="listForm" class="filter-panel" [class.open]="filtersExpanded()">
+    <div class="filter-panel__body">
+      <label class="filter-label"><span>Ordenar por</span><select formControlName="sortBy"><option value="name">Nombre</option><option value="slug">Slug</option><option value="isActive">Estado</option><option value="createdAt">Creación</option></select></label>
+      <label class="filter-label"><span>Dirección</span><select formControlName="sortOrder"><option value="asc">Ascendente</option><option value="desc">Descendente</option></select></label>
+      <label class="filter-label"><span>Por página</span><select formControlName="pageSize"><option [value]="10">10</option><option [value]="20">20</option><option [value]="50">50</option></select></label>
+    </div>
+  </form>
+
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
+  <section class="section-card">
+    <div class="table-wrapper" *ngIf="response">
+        <table>
+          <thead><tr><th>Nombre</th><th>Slug</th><th>Estado</th><th>Descripción</th><th>Acciones</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let catalog of response.items">
+              <td>{{ catalog.name }}</td>
+              <td>{{ catalog.slug }}</td>
+              <td><span class="status-pill">{{ catalog.isActive ? 'Activo' : 'Inactivo' }}</span></td>
+              <td>{{ catalog.description || '—' }}</td>
+              <td>
+                <div class="table-actions table-actions--compact">
+                  <button type="button" class="icon-button action-edit" (click)="editCatalog(catalog)" title="Editar catálogo" aria-label="Editar catálogo">✎</button>
+                  <button type="button" class="icon-button action-delete" (click)="deleteCatalog(catalog)" title="Eliminar catálogo" aria-label="Eliminar catálogo">🗑</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-bar" *ngIf="response"><button type="button" class="secondary-button" (click)="changePage(-1)" [disabled]="response.pagination.page <= 1">Anterior</button><span>Página {{ response.pagination.page }} de {{ response.pagination.totalPages || 1 }}</span><button type="button" class="secondary-button" (click)="changePage(1)" [disabled]="response.pagination.page >= response.pagination.totalPages">Siguiente</button></div>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="isFormModalOpen">
+    <section class="modal-card" role="dialog" aria-modal="true">
+      <header class="modal-header">
+        <div>
+          <h3>{{ editingCatalogName ? ('Editar ' + editingCatalogName) : 'Nuevo catálogo' }}</h3>
+          <p>Configura catálogos comerciales y su estado de publicación interna.</p>
+        </div>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar">✕</button>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
+        <label><span>Nombre</span><input type="text" formControlName="name" /></label>
+        <label><span>Slug</span><input type="text" formControlName="slug" /></label>
+        <label><span>Descripción</span><textarea rows="4" formControlName="description"></textarea></label>
+        <label class="checkbox-item"><input type="checkbox" formControlName="isActive" /><span>Activo</span></label>
+        <div class="form-actions">
+          <button type="submit" class="action-button action-create"><span aria-hidden="true">{{ editingCatalogName ? '✓' : '＋' }}</span><span>{{ editingCatalogName ? 'Guardar cambios' : 'Crear catálogo' }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><span aria-hidden="true">✕</span><span>Cancelar</span></button>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>

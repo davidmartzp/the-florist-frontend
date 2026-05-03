@@ -1,0 +1,70 @@
+<section class="site-section">
+  <div class="site-container">
+      <div class="catalog-hero site-card">
+        <div class="site-card__body">
+          <p class="site-eyebrow">Catálogo</p>
+          <h1 class="catalog-hero__title">Flores para celebrar, agradecer y llenar de vida cada espacio.</h1>
+        <p class="site-subtitle">
+          Encuentra bouquets, arreglos y selecciones por variedad con una propuesta delicada,
+          natural y fiel a la frescura del cultivo.
+        </p>
+        <div class="site-chip-row">
+          <span *ngFor="let filter of filters" class="site-chip">{{ filter }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="site-section catalog-section">
+    <div class="site-container">
+      <div class="site-section-heading">
+      <p class="site-eyebrow">Navega por categoría</p>
+      <h2>Elige la categoría que mejor acompaña tu momento.</h2>
+      </div>
+
+    <div class="site-grid site-grid--four">
+      <article *ngFor="let category of categories" class="site-card catalog-category">
+        <img [src]="category.image" [alt]="category.name" class="site-image catalog-category__image" />
+        <div class="site-card__body">
+          <p class="site-eyebrow">{{ category.accent }}</p>
+          <h3>{{ category.name }}</h3>
+          <p>{{ category.description }}</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="site-section">
+    <div class="site-container">
+      <div class="catalog-toolbar">
+        <strong>{{ products.length }} referencias curadas</strong>
+      <span class="site-muted">Una selección pensada para regalar con frescura y elegancia</span>
+      </div>
+
+    <div class="site-grid site-grid--three">
+      <article *ngFor="let product of products" class="site-card catalog-product">
+        <img [src]="product.image" [alt]="product.name" class="site-image catalog-product__image" />
+        <div class="site-card__body">
+          <div class="catalog-product__topline">
+            <span class="catalog-product__badge">{{ product.badge }}</span>
+            <span class="site-muted">{{ product.category }}</span>
+          </div>
+
+          <h3>{{ product.name }}</h3>
+          <p>{{ product.description }}</p>
+
+          <div class="catalog-product__meta">
+            <span class="site-price">{{ formatPrice(product.price) }}</span>
+            <span class="site-muted">{{ product.deliveryNote }}</span>
+          </div>
+
+          <a [routerLink]="['/producto', product.slug]" class="site-button site-button--primary">
+            Ver producto
+          </a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

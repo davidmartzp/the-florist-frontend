@@ -1,0 +1,26 @@
+<div class="login-shell">
+  <section class="login-card">
+    <div>
+      <h1>Ingreso al CMS</h1>
+      <p>Accede al administrador en <strong>/admin-flowers</strong>.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+      <label>
+        <span>Correo</span>
+        <input type="email" formControlName="email" placeholder="admin@floreriacolon.com" />
+      </label>
+
+      <label>
+        <span>Contraseña</span>
+        <input type="password" formControlName="password" placeholder="********" />
+      </label>
+
+      <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Ingresando...' : 'Entrar' }}
+      </button>
+    </form>
+  </section>
+</div>

@@ -1,0 +1,132 @@
+<section class="site-section cart-page">
+  <div class="site-container cart-grid">
+    <div class="cart-main">
+      <div class="site-section-heading">
+        <p class="site-eyebrow">Carrito</p>
+        <h1>Tus flores están listas para enviar.</h1>
+        <p>Revisa tus productos, ajusta cantidades y continúa al checkout con total claridad.</p>
+      </div>
+
+      <div *ngIf="!isEmpty(); else emptyCart" class="cart-list">
+        <article *ngFor="let item of items()" class="site-card cart-item">
+          <img [src]="item.image" [alt]="item.name" class="site-image cart-item__image" />
+
+          <div class="site-card__body cart-item__body">
+            <div class="cart-item__details">
+              <div class="cart-item__tag-row">
+                <p class="site-eyebrow cart-item__category">{{ item.category }}</p>
+                <span *ngIf="item.type === 'COMPLEMENT'" class="cart-item__tag">Complemento</span>
+              </div>
+              <h3>{{ item.name }}</h3>
+              <p class="cart-item__note">{{ item.deliveryNote }}</p>
+            </div>
+
+            <div class="cart-item__footer">
+              <div class="cart-item__actions">
+                <button
+                  type="button"
+                  class="cart-pill-button"
+                  (click)="decreaseQuantity(item.slug, item.quantity)"
+                  [attr.aria-label]="'Disminuir cantidad de ' + item.name"
+                >
+                  -
+                </button>
+                <span class="cart-pill-value">{{ item.quantity }}</span>
+                <button
+                  type="button"
+                  class="cart-pill-button"
+                  (click)="increaseQuantity(item.slug, item.quantity)"
+                  [attr.aria-label]="'Aumentar cantidad de ' + item.name"
+                >
+                  +
+                </button>
+              </div>
+              <div class="cart-item__actions cart-item__actions--secondary">
+                <button
+                  type="button"
+                  class="site-button site-button--secondary cart-item__remove"
+                  (click)="removeItem(item.slug)"
+                >
+                 Eliminar
+                </button>
+              </div>
+              <strong class="site-price cart-item__price">{{ formatPrice(item.lineTotal) }}</strong>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <section *ngIf="hasGeneralItems() && complements().length" class="site-card cart-complements">
+        <div class="site-card__body">
+          <p class="site-eyebrow">Complementa tu compra</p>
+          <div class="cart-complements__grid">
+            <article *ngFor="let complement of complements()" class="site-card cart-complement-card">
+              <img
+                [src]="complement.image"
+                [alt]="complement.name"
+                class="site-image cart-complement-card__image"
+              />
+              <div class="cart-complement-card__content">
+                <h4>{{ complement.name }}</h4>
+                <p>{{ complement.description }}</p>
+                <strong class="site-price">{{ formatPrice(complement.price) }}</strong>
+              </div>
+              <button
+                type="button"
+                class="site-button site-button--primary cart-complement-card__button"
+                (click)="addComplement(complement.slug)"
+              >
+                + Agregar
+              </button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <ng-template #emptyCart>
+        <div class="site-card">
+          <div class="site-card__body cart-empty-state">
+            <h3>Tu carrito está vacío.</h3>
+            <p>Agrega un arreglo floral para ver aquí tu resumen de compra.</p>
+            <a routerLink="/" fragment="productos" class="site-button site-button--primary">Explorar productos</a>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+    <aside class="site-card cart-summary">
+      <div class="site-card__body">
+        <p class="site-eyebrow">Resumen</p>
+        <h2>Total estimado</h2>
+
+        <div class="cart-summary__row">
+          <span>Subtotal actual</span>
+          <strong>{{ formatPrice(subtotal()) }}</strong>
+        </div>
+
+        <p class="site-muted">El envío y el total final se seleccionan en el checkout.</p>
+
+        <div class="cart-summary__actions">
+          <a routerLink="/checkout" class="site-button site-button--primary" [class.site-button--disabled]="isEmpty()">
+            Continuar al checkout
+          </a>
+          <a routerLink="/" fragment="productos" class="site-button site-button--secondary">Seguir comprando</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="cart-page-footer">
+    <div class="cart-page-footer__summary">
+      <span>Total</span>
+      <strong>{{ formatPrice(subtotal()) }}</strong>
+    </div>
+    <a
+      routerLink="/checkout"
+      class="site-button site-button--primary cart-page-footer__button"
+      [class.site-button--disabled]="isEmpty()"
+    >
+      Ir a pagar
+    </a>
+  </div>
+</section>

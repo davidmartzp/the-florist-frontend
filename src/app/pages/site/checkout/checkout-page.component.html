@@ -1,0 +1,195 @@
+<section class="site-section checkout-page">
+  <div class="site-container checkout-grid">
+    <div class="checkout-main">
+      <div class="site-section-heading">
+        <p class="site-eyebrow">Checkout</p>
+        <h1>Confirma tus datos y revisa el resumen antes de finalizar.</h1>
+        <p>Completa la información de entrega y valida el detalle de tu pedido en tiempo real.</p>
+      </div>
+
+      <div *ngIf="!isEmpty(); else emptyCheckout" class="site-card checkout-card">
+        <div class="site-card__body">
+          <section class="checkout-step">
+            <div class="checkout-step__header">
+              <span class="site-eyebrow">Paso 1</span>
+              <h2>Datos del destinatario</h2>
+            </div>
+            <form class="checkout-form">
+              <label>
+                <span>Nombre de quien recibe</span>
+                <input
+                  [(ngModel)]="checkoutFormCustomerName"
+                  name="customerName"
+                  type="text"
+                  autocomplete="name"
+                  placeholder="Nombre completo"
+                />
+              </label>
+
+              <label>
+                <span>Teléfono</span>
+                <input
+                  [(ngModel)]="checkoutFormCustomerPhone"
+                  name="customerPhone"
+                  type="tel"
+                  autocomplete="tel"
+                  placeholder="+57 300 000 0000"
+                />
+              </label>
+
+              <label>
+                <span>Correo</span>
+                <input
+                  [(ngModel)]="checkoutFormCustomerEmail"
+                  name="customerEmail"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="cliente@correo.com"
+                />
+              </label>
+
+              <label class="checkout-form__full">
+                <span>Dirección de entrega</span>
+                <textarea
+                  [(ngModel)]="checkoutFormDeliveryAddress"
+                  name="deliveryAddress"
+                  autocomplete="street-address"
+                  rows="3"
+                  placeholder="Dirección, apartamento, referencias"
+                ></textarea>
+              </label>
+            </form>
+          </section>
+
+          <section class="checkout-step">
+            <div class="checkout-step__header">
+              <span class="site-eyebrow">Paso 2</span>
+              <h2>Método de envío</h2>
+            </div>
+            <div class="checkout-shipping">
+            <div *ngIf="shippingOptions().length; else noShippingMethods" class="checkout-shipping__options">
+              <label
+                *ngFor="let option of shippingOptions()"
+                class="checkout-shipping__option"
+                [class.checkout-shipping__option--selected]="isShippingOptionSelected(option.id)"
+              >
+                <input
+                  type="radio"
+                  name="shippingOption"
+                  [value]="option.id"
+                  [(ngModel)]="selectedShippingOptionIdValue"
+                />
+                <div class="checkout-shipping__info">
+                  <strong>{{ option.name }}</strong>
+                  <p>{{ option.description }}</p>
+                </div>
+                <strong>{{ formatPrice(option.price ?? 0) }}</strong>
+              </label>
+            </div>
+
+            <ng-template #noShippingMethods>
+              <p class="site-muted">No hay métodos de envío disponibles en este momento.</p>
+            </ng-template>
+          </div>
+
+            <div class="checkout-shipping-notice">
+              <ul>
+                <li>No garantizamos hora fija de entrega (se hace en el transcurso del día).</li>
+                <li>Las fotos son referentes, los arreglos florales pueden tener variaciones pequeñas.</li>
+                <li>Especifica y revisa bien los datos de entrega. En caso de no encontrar la dirección por algún error de digitación, la florería no responde.</li>
+                <li>Todos los arreglos florales incluyen postal del Día de las Madres para mensaje personalizado.</li>
+                <li>Si quieres algo diferente al catálogo o más opciones para hacer el detalle a tu gusto, visítanos o escríbenos. Tenemos distintos floreros y flores para que armes tu regalo a tu gusto.</li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="checkout-step">
+            <div class="checkout-step__header">
+              <span class="site-eyebrow">Paso 3</span>
+              <h2>Mensaje para la tarjeta</h2>
+            </div>
+            <label class="checkout-form__full">
+              <textarea
+                [(ngModel)]="checkoutFormCardMessage"
+                name="cardMessage"
+                rows="3"
+                autocomplete="off"
+                placeholder="Escribe aquí tu mensaje personalizado"
+              ></textarea>
+            </label>
+          </section>
+        </div>
+      </div>
+
+      <ng-template #emptyCheckout>
+        <div class="site-card">
+          <div class="site-card__body checkout-empty-state">
+            <h3>No hay productos para procesar.</h3>
+            <p>Agrega flores al carrito para que el checkout muestre el resumen de compra.</p>
+            <a routerLink="/" fragment="productos" class="site-button site-button--primary">Volver a productos</a>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+    <aside class="site-card checkout-summary">
+      <div class="site-card__body">
+        <details class="checkout-summary-panel" open>
+          <summary>
+            <span>Resumen de compra</span>
+            <strong>{{ items().length }} artículos</strong>
+          </summary>
+
+          <div class="checkout-summary-panel__content">
+            <div *ngIf="!isEmpty(); else emptySummary" class="checkout-summary__items">
+              <article *ngFor="let item of items()" class="checkout-summary__item">
+                <div>
+                  <strong>{{ item.name }}</strong>
+                  <p>{{ item.quantity }} x {{ formatPrice(item.price) }}</p>
+                </div>
+                <strong>{{ formatPrice(item.lineTotal) }}</strong>
+              </article>
+
+              <div class="cart-summary__row">
+                <span>Subtotal</span>
+                <strong>{{ formatPrice(subtotal()) }}</strong>
+              </div>
+              <div class="cart-summary__row">
+                <span>Envío</span>
+                <strong>{{ formatPrice(shipping()) }}</strong>
+              </div>
+              <div class="cart-summary__row cart-summary__row--total">
+                <span>Total</span>
+                <strong>{{ formatPrice(total()) }}</strong>
+              </div>
+            </div>
+
+            <ng-template #emptySummary>
+              <p class="site-muted">El resumen aparecerá aquí cuando agregues productos al carrito.</p>
+            </ng-template>
+          </div>
+        </details>
+
+        <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+        <div *ngIf="successMessage()" class="success-message">{{ successMessage() }}</div>
+
+        <div class="checkout-summary__actions">
+          <a routerLink="/carrito" class="site-button site-button--secondary">Volver al carrito</a>
+          <button type="button" class="site-button site-button--primary" [disabled]="isEmpty() || !isCheckoutValid() || isProcessing()" (click)="pay()">
+            {{ isProcessing() ? 'Procesando...' : 'Pagar' }}
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="checkout-footer">
+    <div class="checkout-footer__summary">
+      <span>Total</span>
+      <strong>{{ formatPrice(total()) }}</strong>
+    </div>
+    <button type="button" class="site-button site-button--primary checkout-footer__button" [disabled]="isEmpty() || !isCheckoutValid() || isProcessing()" (click)="pay()">
+      {{ isProcessing() ? 'Procesando...' : 'Pagar' }}
+    </button>
+  </div>
+</section>

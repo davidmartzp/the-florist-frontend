@@ -1,0 +1,117 @@
+<section class="site-section home-hero">
+  <div class="site-container home-hero__grid">
+    <div class="home-hero__content">
+      <p class="site-eyebrow">La Floreria by Flores Colon</p>
+      <h1 class="site-title">La magia de las flores, curada desde el cultivo.</h1>
+      <p class="site-subtitle">
+        Ramos, arreglos y detalles florales con la frescura de nuestra tierra y una sensibilidad
+        pensada para celebrar, agradecer y emocionar.
+      </p>
+
+      <div class="home-hero__actions">
+        <a href="#productos" class="site-button site-button--primary">Ver productos</a>
+      </div>
+
+      <div class="site-chip-row" *ngIf="occasions.length">
+        <span *ngFor="let occasion of occasions" class="site-chip">{{ occasion }}</span>
+      </div>
+    </div>
+
+    <div class="home-hero__visual">
+      <div class="home-hero__frame">
+        <img [src]="heroImage" alt="Bouquet floral editorial" class="site-image home-hero__image" />
+      </div>
+    </div>
+  </div>
+
+  <div class="site-container home-hero__stats-bar">
+    <div class="home-hero__stat-item" *ngFor="let item of stats">
+      <strong class="home-hero__stat-value">{{ item.value }}</strong>
+      <span class="home-hero__stat-label">{{ item.label }}</span>
+    </div>
+  </div>
+</section>
+
+<div class="home-divider">
+  <span class="home-divider__line"></span>
+  <span class="home-divider__dot" aria-hidden="true"></span>
+  <span class="home-divider__line"></span>
+</div>
+
+<section id="productos" class="site-section home-featured">
+  <div class="site-container">
+    <div class="site-section-heading">
+      <p class="site-eyebrow">Productos</p>
+      <h2>Encuentra todos nuestros productos en un solo lugar.</h2>
+      <p>Filtra por categoría y descubre opciones para regalar, decorar o celebrar.</p>
+    </div>
+
+    <div class="home-featured__filters">
+      <div class="home-featured__filter-select">
+        <label for="category-filter-select" class="visually-hidden">Filtrar categoría</label>
+        <select id="category-filter-select" (change)="onFilterSelect($event)" [value]="selectedCategoryFilterId()">
+          <option *ngFor="let filter of productFilters()" [value]="filter.id">
+            {{ filter.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="home-featured__filter-chips">
+        <button *ngFor="let filter of productFilters()" type="button" class="home-filter-chip"
+          [class.active]="isCategoryFilterActive(filter.id)" (click)="setCategoryFilter(filter.id)">
+          {{ filter.label }}
+        </button>
+      </div>
+    </div>
+
+    <div class="site-grid site-grid--three home-featured__grid"
+      [class.home-featured__grid--transitioning]="isProductFilterTransitioning()">
+      <article *ngFor="let product of filteredProducts()" class="site-card product-card">
+        <img [src]="product.image" [alt]="product.name" class="site-image product-card__image"
+          (error)="onImageError($event)" />
+        <div class="site-card__body">
+          <span class="product-card__badge">{{ product.badge }}</span>
+          <h3>{{ product.name }}</h3>
+          <p class="product-card__description">{{ product.description }}</p>
+          <div class="product-card__meta">
+            <span class="site-price">{{ formatPrice(product.price) }}</span>
+          </div>
+          <a [routerLink]="['/producto', product.slug]" class="site-button site-button--primary">
+            Ver detalle
+          </a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="site-section home-story">
+  <div class="site-container">
+    <div class="home-story__header">
+      <p class="site-eyebrow">Esencia de marca</p>
+      <h2 class="site-title">Tradición, naturaleza, sostenibilidad e innovación en una sola experiencia.</h2>
+      <p class="home-story__lead">
+        Cada flor nace de una historia familiar que valora la calidad, el cuidado del proceso y
+        la emoción de acompañar momentos importantes.
+      </p>
+    </div>
+
+    <div class="home-story__grid">
+      <blockquote class="home-story__quote">
+        <span class="home-story__quote-mark" aria-hidden="true">&ldquo;</span>
+        <p>Más de 40 años cultivando la belleza y frescura de las flores colombianas, llevando la pasión de nuestra tierra a cada rincón del mundo.</p>
+        <footer class="home-story__quote-footer">
+          <span class="home-story__quote-line"></span>
+          <span>Flores Colón</span>
+        </footer>
+      </blockquote>
+
+      <div class="home-story__commitments">
+        <article *ngFor="let commitment of commitments" class="home-story__commitment">
+          <span class="home-story__commitment-dot" aria-hidden="true"></span>
+          <p>{{ commitment }}</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>

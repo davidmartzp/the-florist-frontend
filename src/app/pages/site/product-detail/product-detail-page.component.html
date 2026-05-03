@@ -1,0 +1,37 @@
+<section class="site-section" *ngIf="product() as p">
+  <div class="site-container product-detail">
+    <div class="product-detail__gallery site-card">
+      <img
+        [src]="p.image"
+        [alt]="p.name"
+        class="site-image product-detail__image"
+        (error)="onImageError($event)"
+      />
+    </div>
+
+    <div class="product-detail__info">
+      <a routerLink="/" class="product-detail__back-link">Volver al inicio</a>
+      <p class="site-eyebrow">{{ p.badge }}</p>
+      <h1>{{ p.name }}</h1>
+      <p class="product-detail__category">{{ p.category }}</p>
+      <p class="site-price">{{ formatPrice(p.price) }}</p>
+      <p class="product-detail__description">{{ p.description }}</p>
+
+      <div class="site-chip-row">
+        <span class="site-chip">{{ p.deliveryNote }}</span>
+      </div>
+
+      <div class="product-detail__actions">
+        <button type="button" class="site-button site-button--primary" (click)="addCurrentProductToCart()">
+          Agregar al carrito
+        </button>
+        <a routerLink="/carrito" class="site-button site-button--secondary">Ver carrito</a>
+        <a routerLink="/" fragment="productos" class="site-button site-button--secondary">Seguir comprando</a>
+      </div>
+      <p *ngIf="addedToCart()" class="product-detail__feedback">
+        Producto agregado al carrito correctamente.
+      </p>
+
+    </div>
+  </div>
+</section>

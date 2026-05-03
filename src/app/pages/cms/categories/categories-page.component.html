@@ -1,0 +1,71 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div class="page-header__title">
+      <h1 class="page-title">Categorías</h1>
+      <p class="page-subtitle">Clasificación principal de los productos de la tienda</p>
+    </div>
+    <div class="page-header__actions">
+      <button type="button" class="filter-toggle-btn" [class.active]="filtersExpanded()" (click)="filtersExpanded.set(!filtersExpanded())">
+        Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
+      </button>
+      <button type="button" class="action-button action-create" (click)="openCreateModal()">
+        <span aria-hidden="true">＋</span><span>Nueva categoría</span>
+      </button>
+    </div>
+  </header>
+
+  <form [formGroup]="listForm" class="filter-panel" [class.open]="filtersExpanded()">
+    <div class="filter-panel__body">
+      <label class="filter-label"><span>Ordenar por</span><select formControlName="sortBy"><option value="name">Nombre</option><option value="slug">Slug</option><option value="createdAt">Creación</option></select></label>
+      <label class="filter-label"><span>Dirección</span><select formControlName="sortOrder"><option value="asc">Ascendente</option><option value="desc">Descendente</option></select></label>
+      <label class="filter-label"><span>Por página</span><select formControlName="pageSize"><option [value]="10">10</option><option [value]="20">20</option><option [value]="50">50</option></select></label>
+    </div>
+  </form>
+
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
+  <section class="section-card">
+    <div class="table-wrapper" *ngIf="response">
+        <table>
+          <thead><tr><th>Nombre</th><th>Slug</th><th>Descripción</th><th>Acciones</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let category of response.items">
+              <td>{{ category.name }}</td>
+              <td>{{ category.slug }}</td>
+              <td>{{ category.description || '—' }}</td>
+              <td>
+                <div class="table-actions table-actions--compact">
+                  <button type="button" class="icon-button action-edit" (click)="editCategory(category)" title="Editar categoría" aria-label="Editar categoría">✎</button>
+                  <button type="button" class="icon-button action-delete" (click)="deleteCategory(category)" title="Eliminar categoría" aria-label="Eliminar categoría">🗑</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-bar" *ngIf="response"><button type="button" class="secondary-button" (click)="changePage(-1)" [disabled]="response.pagination.page <= 1">Anterior</button><span>Página {{ response.pagination.page }} de {{ response.pagination.totalPages || 1 }}</span><button type="button" class="secondary-button" (click)="changePage(1)" [disabled]="response.pagination.page >= response.pagination.totalPages">Siguiente</button></div>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="isFormModalOpen">
+    <section class="modal-card" role="dialog" aria-modal="true">
+      <header class="modal-header">
+        <div>
+          <h3>{{ editingCategoryName ? ('Editar ' + editingCategoryName) : 'Nueva categoría' }}</h3>
+          <p>Gestiona la clasificación principal de los productos.</p>
+        </div>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar">✕</button>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
+        <label><span>Nombre</span><input type="text" formControlName="name" /></label>
+        <label><span>Slug</span><input type="text" formControlName="slug" /></label>
+        <label><span>Descripción</span><textarea rows="4" formControlName="description"></textarea></label>
+        <div class="form-actions">
+          <button type="submit" class="action-button action-create"><span aria-hidden="true">{{ editingCategoryName ? '✓' : '＋' }}</span><span>{{ editingCategoryName ? 'Guardar cambios' : 'Crear categoría' }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><span aria-hidden="true">✕</span><span>Cancelar</span></button>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>
