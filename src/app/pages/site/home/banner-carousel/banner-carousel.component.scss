@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 .banner-carousel {
   position: relative;
   width: 100%;
@@ -44,57 +48,6 @@
   pointer-events: none;
 }
 
-.banner-carousel__controls {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  pointer-events: none;
-}
-
-.banner-carousel__arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  cursor: pointer;
-  pointer-events: auto;
-  transition:
-    background-color 250ms ease,
-    border-color 250ms ease,
-    transform 250ms ease;
-
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.45);
-    transform: translateY(-50%) scale(1.05);
-  }
-
-  &:active {
-    transform: translateY(-50%) scale(0.96);
-  }
-
-  &--prev {
-    left: 1rem;
-  }
-
-  &--next {
-    right: 1rem;
-  }
-}
 
 /* Franja verde marca con CTA debajo del banner */
 .banner-cta-bar {
@@ -130,25 +83,8 @@
 
 @media (max-width: 720px) {
   .banner-carousel {
-    height: 340px;
-  }
-
-  .banner-carousel__arrow {
-    width: 2.4rem;
-    height: 2.4rem;
-
-    svg {
-      width: 1rem;
-      height: 1rem;
-    }
-
-    &--prev {
-      left: 0.6rem;
-    }
-
-    &--next {
-      right: 0.6rem;
-    }
+    height: auto;
+    aspect-ratio: 16 / 9;
   }
 
   .banner-cta-bar {

@@ -3,6 +3,7 @@ import { Component, DestroyRef, Input, OnInit, inject, signal } from '@angular/c
 
 export interface BannerSlide {
   image: string;
+  mobileImage?: string;
   alt: string;
 }
 

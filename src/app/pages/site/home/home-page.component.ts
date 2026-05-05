@@ -86,12 +86,24 @@ export class HomePageComponent {
 
   protected readonly bannerSlides: BannerSlide[] = [
     {
-      image: 'https://lafloreriabyflorescolon.co/banners/banner1.png',
+      image: 'https://lafloreriabyflorescolon.co/banners/banner_1.png',
+      mobileImage: 'https://lafloreriabyflorescolon.co/banners/banner_1.png',
       alt: 'Banner 1 Día de la Madre - La Florería by Flores Colón',
     },
     {
-      image: 'https://lafloreriabyflorescolon.co/banners/banner2.png',
+      image: 'https://lafloreriabyflorescolon.co/banners/banner_2.jpg',
+      mobileImage: 'https://lafloreriabyflorescolon.co/banners/banner_2_mobile.jpg',
       alt: 'Banner 2 Día de la Madre - La Florería by Flores Colón',
+    },
+    {
+      image: 'https://lafloreriabyflorescolon.co/banners/banner_3.jpg',
+      mobileImage: 'https://lafloreriabyflorescolon.co/banners/banner_3_mobile.jpg',
+      alt: 'Banner 3 Día de la Madre - La Florería by Flores Colón',
+    },
+    {
+      image: 'https://lafloreriabyflorescolon.co/banners/banner_4.jpg',
+      mobileImage: 'https://lafloreriabyflorescolon.co/banners/banner_4_mobile.jpg',
+      alt: 'Banner 4 Día de la Madre - La Florería by Flores Colón',
     },
   ];
 
