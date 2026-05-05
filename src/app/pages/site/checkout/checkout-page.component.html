@@ -11,26 +11,113 @@
       <div *ngIf="!isEmpty()" class="checkout-stepper">
         <button type="button" class="checkout-stepper__tab" [class.active]="step() === 1" [class.completed]="isStep1Valid()" (click)="goToStep(1)">
           <span class="checkout-stepper__number">1</span>
-          <span class="checkout-stepper__label">Facturación</span>
+          <span class="checkout-stepper__label">Envío</span>
         </button>
         <div class="checkout-stepper__line" [class.active]="step() >= 2"></div>
         <button type="button" class="checkout-stepper__tab" [class.active]="step() === 2" [class.completed]="isStep2Valid()" (click)="goToStep(2)">
           <span class="checkout-stepper__number">2</span>
-          <span class="checkout-stepper__label">Envío</span>
+          <span class="checkout-stepper__label">Receptor</span>
         </button>
         <div class="checkout-stepper__line" [class.active]="step() >= 3"></div>
         <button type="button" class="checkout-stepper__tab" [class.active]="step() === 3" [class.completed]="isStep3Valid()" (click)="goToStep(3)">
           <span class="checkout-stepper__number">3</span>
-          <span class="checkout-stepper__label">Receptor</span>
+          <span class="checkout-stepper__label">Facturación</span>
         </button>
       </div>
 
       <div *ngIf="!isEmpty(); else emptyCheckout" class="site-card checkout-card">
         <div class="site-card__body">
-          <!-- Paso 1: Datos de facturación -->
+          <!-- Paso 1: Datos de envío -->
           <section class="checkout-step" *ngIf="step() === 1">
             <div class="checkout-step__header">
               <span class="site-eyebrow">Paso 1</span>
+              <h2>Datos de envío</h2>
+            </div>
+            <div class="checkout-shipping">
+              <div *ngIf="shippingOptions().length; else noShippingMethods" class="checkout-shipping__options">
+                <label *ngFor="let option of shippingOptions()" class="checkout-shipping__option" [class.checkout-shipping__option--selected]="isShippingOptionSelected(option.id)">
+                  <input type="radio" name="shippingOption" [value]="option.id" [(ngModel)]="selectedShippingOptionIdValue" />
+                  <div class="checkout-shipping__info">
+                    <strong>{{ option.name }}</strong>
+                    <p>{{ option.description }}</p>
+                  </div>
+                  <strong>{{ formatPrice(option.price ?? 0) }}</strong>
+                </label>
+              </div>
+
+              <ng-template #noShippingMethods>
+                <p class="site-muted">No hay métodos de envío disponibles en este momento.</p>
+              </ng-template>
+            </div>
+
+            <div class="checkout-shipping-notice">
+              <ul>
+                <li>No garantizamos hora fija de entrega (se hace en el transcurso del día).</li>
+                <li>Las fotos son referentes, los arreglos florales pueden tener variaciones pequeñas.</li>
+                <li>Especifica y revisa bien los datos de entrega. En caso de no encontrar la dirección por algún error de digitación, la florería no responde.</li>
+                <li>Todos los arreglos florales incluyen postal del Día de las Madres para mensaje personalizado.</li>
+                <li>Si quieres algo diferente al catálogo o más opciones para hacer el detalle a tu gusto, visítanos o escríbenos. Tenemos distintos floreros y flores para que armes tu regalo a tu gusto.</li>
+              </ul>
+            </div>
+
+            <div class="checkout-step__actions">
+              <button type="button" class="site-button site-button--primary" [disabled]="!isStep1Valid()" (click)="nextStep()">Continuar</button>
+            </div>
+          </section>
+
+          <!-- Paso 2: Datos de quien recibe -->
+          <section class="checkout-step" *ngIf="step() === 2">
+            <div class="checkout-step__header">
+              <span class="site-eyebrow">Paso 2</span>
+              <h2>Datos de quien recibe</h2>
+            </div>
+            <form class="checkout-form">
+              <label class="checkout-form__full checkbox-item">
+                <input type="checkbox" [(ngModel)]="checkoutFormIncludesCard" name="includesCard" />
+                <span>Incluir tarjeta de dedicatoria</span>
+              </label>
+
+              <label>
+                <span>Nombre del receptor {{ isShippingRequired() ? '*' : '' }}</span>
+                <input [(ngModel)]="checkoutFormReceiverName" name="receiverName" type="text" autocomplete="off" placeholder="Nombre de quien recibe" />
+              </label>
+
+              <label class="checkout-form__full">
+                <span>Dirección de entrega {{ isShippingRequired() ? '*' : '' }}</span>
+                <textarea [(ngModel)]="checkoutFormDeliveryAddress" name="deliveryAddress" autocomplete="street-address" rows="3" placeholder="Dirección, apartamento, referencias"></textarea>
+              </label>
+
+              <label>
+                <span>Teléfono del receptor {{ isShippingRequired() ? '*' : '' }}</span>
+                <input [(ngModel)]="checkoutFormReceiverPhone" name="receiverPhone" type="tel" autocomplete="off" placeholder="+57 300 000 0000" />
+              </label>
+
+              <label>
+                <span>Día de envío {{ isShippingRequired() ? '*' : '' }}</span>
+                <input [(ngModel)]="checkoutFormDeliveryDate" name="deliveryDate" type="date" />
+              </label>
+
+              <label class="checkout-form__full" *ngIf="includesCard()">
+                <span>Mensaje para la tarjeta *</span>
+                <textarea [(ngModel)]="checkoutFormCardMessage" name="cardMessage" rows="3" autocomplete="off" placeholder="Escribe aquí tu mensaje personalizado"></textarea>
+              </label>
+
+              <label class="checkout-form__full" *ngIf="includesCard()">
+                <span>Nombre de quien firma la tarjeta</span>
+                <input [(ngModel)]="checkoutFormCardSignature" name="cardSignature" type="text" autocomplete="off" placeholder="Firma de la tarjeta (opcional)" />
+              </label>
+            </form>
+
+            <div class="checkout-step__actions">
+              <button type="button" class="site-button site-button--secondary" (click)="prevStep()">Volver</button>
+              <button type="button" class="site-button site-button--primary" [disabled]="!isStep2Valid()" (click)="nextStep()">Continuar</button>
+            </div>
+          </section>
+
+          <!-- Paso 3: Datos de facturación -->
+          <section class="checkout-step" *ngIf="step() === 3">
+            <div class="checkout-step__header">
+              <span class="site-eyebrow">Paso 3</span>
               <h2>Datos de facturación</h2>
             </div>
             <form class="checkout-form">
@@ -70,93 +157,6 @@
               <label class="checkout-form__full">
                 <span>Dirección de facturación</span>
                 <textarea [(ngModel)]="checkoutFormBillingAddress" name="billingAddress" autocomplete="street-address" rows="2" placeholder="Dirección para la factura (opcional)"></textarea>
-              </label>
-            </form>
-
-            <div class="checkout-step__actions">
-              <button type="button" class="site-button site-button--primary" [disabled]="!isStep1Valid()" (click)="nextStep()">Continuar</button>
-            </div>
-          </section>
-
-          <!-- Paso 2: Datos de envío -->
-          <section class="checkout-step" *ngIf="step() === 2">
-            <div class="checkout-step__header">
-              <span class="site-eyebrow">Paso 2</span>
-              <h2>Datos de envío</h2>
-            </div>
-            <div class="checkout-shipping">
-              <div *ngIf="shippingOptions().length; else noShippingMethods" class="checkout-shipping__options">
-                <label *ngFor="let option of shippingOptions()" class="checkout-shipping__option" [class.checkout-shipping__option--selected]="isShippingOptionSelected(option.id)">
-                  <input type="radio" name="shippingOption" [value]="option.id" [(ngModel)]="selectedShippingOptionIdValue" />
-                  <div class="checkout-shipping__info">
-                    <strong>{{ option.name }}</strong>
-                    <p>{{ option.description }}</p>
-                  </div>
-                  <strong>{{ formatPrice(option.price ?? 0) }}</strong>
-                </label>
-              </div>
-
-              <ng-template #noShippingMethods>
-                <p class="site-muted">No hay métodos de envío disponibles en este momento.</p>
-              </ng-template>
-            </div>
-
-            <div class="checkout-shipping-notice">
-              <ul>
-                <li>No garantizamos hora fija de entrega (se hace en el transcurso del día).</li>
-                <li>Las fotos son referentes, los arreglos florales pueden tener variaciones pequeñas.</li>
-                <li>Especifica y revisa bien los datos de entrega. En caso de no encontrar la dirección por algún error de digitación, la florería no responde.</li>
-                <li>Todos los arreglos florales incluyen postal del Día de las Madres para mensaje personalizado.</li>
-                <li>Si quieres algo diferente al catálogo o más opciones para hacer el detalle a tu gusto, visítanos o escríbenos. Tenemos distintos floreros y flores para que armes tu regalo a tu gusto.</li>
-              </ul>
-            </div>
-
-            <div class="checkout-step__actions">
-              <button type="button" class="site-button site-button--secondary" (click)="prevStep()">Volver</button>
-              <button type="button" class="site-button site-button--primary" [disabled]="!isStep2Valid()" (click)="nextStep()">Continuar</button>
-            </div>
-          </section>
-
-          <!-- Paso 3: Datos de quien recibe -->
-          <section class="checkout-step" *ngIf="step() === 3">
-            <div class="checkout-step__header">
-              <span class="site-eyebrow">Paso 3</span>
-              <h2>Datos de quien recibe</h2>
-            </div>
-            <form class="checkout-form">
-              <label class="checkout-form__full checkbox-item">
-                <input type="checkbox" [(ngModel)]="checkoutFormIncludesCard" name="includesCard" />
-                <span>Incluir tarjeta de dedicatoria</span>
-              </label>
-
-              <label>
-                <span>Nombre del receptor {{ isShippingRequired() ? '*' : '' }}</span>
-                <input [(ngModel)]="checkoutFormReceiverName" name="receiverName" type="text" autocomplete="off" placeholder="Nombre de quien recibe" />
-              </label>
-
-              <label class="checkout-form__full">
-                <span>Dirección de entrega {{ isShippingRequired() ? '*' : '' }}</span>
-                <textarea [(ngModel)]="checkoutFormDeliveryAddress" name="deliveryAddress" autocomplete="street-address" rows="3" placeholder="Dirección, apartamento, referencias"></textarea>
-              </label>
-
-              <label>
-                <span>Teléfono del receptor {{ isShippingRequired() ? '*' : '' }}</span>
-                <input [(ngModel)]="checkoutFormReceiverPhone" name="receiverPhone" type="tel" autocomplete="off" placeholder="+57 300 000 0000" />
-              </label>
-
-              <label>
-                <span>Día de envío {{ isShippingRequired() ? '*' : '' }}</span>
-                <input [(ngModel)]="checkoutFormDeliveryDate" name="deliveryDate" type="date" />
-              </label>
-
-              <label class="checkout-form__full" *ngIf="includesCard()">
-                <span>Mensaje para la tarjeta *</span>
-                <textarea [(ngModel)]="checkoutFormCardMessage" name="cardMessage" rows="3" autocomplete="off" placeholder="Escribe aquí tu mensaje personalizado"></textarea>
-              </label>
-
-              <label class="checkout-form__full" *ngIf="includesCard()">
-                <span>Nombre de quien firma la tarjeta</span>
-                <input [(ngModel)]="checkoutFormCardSignature" name="cardSignature" type="text" autocomplete="off" placeholder="Firma de la tarjeta (opcional)" />
               </label>
             </form>
 

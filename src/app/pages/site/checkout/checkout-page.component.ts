@@ -204,21 +204,10 @@ export class CheckoutPageComponent {
   });
 
   protected readonly isStep1Valid = computed(() => {
-    const name = this.customerName().trim();
-    const phone = this.customerPhone().trim();
-    const email = this.customerEmail().trim();
-    const document = this.billingDocument().trim();
-    const documentType = this.billingDocumentType();
-    const city = this.billingCity().trim();
-    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    return !!name && !!phone && !!email && emailValid && !!document && !!documentType && !!city;
-  });
-
-  protected readonly isStep2Valid = computed(() => {
     return this.selectedShippingOptionId() !== '' && this.selectedShippingOptionId() !== null;
   });
 
-  protected readonly isStep3Valid = computed(() => {
+  protected readonly isStep2Valid = computed(() => {
     const needsShipping = this.isShippingRequired();
     const receiver = this.receiverName().trim();
     const receiverPhone = this.receiverPhone().trim();
@@ -231,6 +220,17 @@ export class CheckoutPageComponent {
       return this.cardMessage().trim().length > 0;
     }
     return true;
+  });
+
+  protected readonly isStep3Valid = computed(() => {
+    const name = this.customerName().trim();
+    const phone = this.customerPhone().trim();
+    const email = this.customerEmail().trim();
+    const document = this.billingDocument().trim();
+    const documentType = this.billingDocumentType();
+    const city = this.billingCity().trim();
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return !!name && !!phone && !!email && emailValid && !!document && !!documentType && !!city;
   });
 
   protected readonly isCheckoutValid = computed(() => {
