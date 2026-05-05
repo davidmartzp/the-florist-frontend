@@ -9,7 +9,7 @@
         Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
       </button>
       <button type="button" class="action-button action-create" (click)="openCreateModal()">
-        <span aria-hidden="true">＋</span><span>Nuevo catálogo</span>
+        <i class="fas fa-plus" aria-hidden="true"></i><span>Nuevo catálogo</span>
       </button>
     </div>
   </header>
@@ -22,8 +22,7 @@
     </div>
   </form>
 
-  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
-  <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
 
   <section class="section-card">
     <div class="table-wrapper" *ngIf="response">
@@ -37,8 +36,8 @@
               <td>{{ catalog.description || '—' }}</td>
               <td>
                 <div class="table-actions table-actions--compact">
-                  <button type="button" class="icon-button action-edit" (click)="editCatalog(catalog)" title="Editar catálogo" aria-label="Editar catálogo">✎</button>
-                  <button type="button" class="icon-button action-delete" (click)="deleteCatalog(catalog)" title="Eliminar catálogo" aria-label="Eliminar catálogo">🗑</button>
+                  <button type="button" class="icon-button action-edit" (click)="editCatalog(catalog)" title="Editar catálogo" aria-label="Editar catálogo"><i class="fas fa-pen"></i></button>
+                  <button type="button" class="icon-button" [class.action-delete]="catalog.isActive" [class.action-create]="!catalog.isActive" (click)="toggleCatalogActive(catalog)" [title]="catalog.isActive ? 'Desactivar catálogo' : 'Activar catálogo'" [attr.aria-label]="catalog.isActive ? 'Desactivar catálogo' : 'Activar catálogo'"><i class="fas" [class.fa-eye-slash]="catalog.isActive" [class.fa-eye]="!catalog.isActive"></i></button>
                 </div>
               </td>
             </tr>
@@ -55,7 +54,7 @@
           <h3>{{ editingCatalogName ? ('Editar ' + editingCatalogName) : 'Nuevo catálogo' }}</h3>
           <p>Configura catálogos comerciales y su estado de publicación interna.</p>
         </div>
-        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar">✕</button>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar"><i class="fas fa-times"></i></button>
       </header>
 
       <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
@@ -64,8 +63,8 @@
         <label><span>Descripción</span><textarea rows="4" formControlName="description"></textarea></label>
         <label class="checkbox-item"><input type="checkbox" formControlName="isActive" /><span>Activo</span></label>
         <div class="form-actions">
-          <button type="submit" class="action-button action-create"><span aria-hidden="true">{{ editingCatalogName ? '✓' : '＋' }}</span><span>{{ editingCatalogName ? 'Guardar cambios' : 'Crear catálogo' }}</span></button>
-          <button type="button" class="action-button action-neutral" (click)="resetForm()"><span aria-hidden="true">✕</span><span>Cancelar</span></button>
+          <button type="submit" class="action-button action-create"><i class="fas" [class.fa-check]="editingCatalogName" [class.fa-plus]="!editingCatalogName" aria-hidden="true"></i><span>{{ editingCatalogName ? 'Guardar cambios' : 'Crear catálogo' }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><i class="fas fa-times" aria-hidden="true"></i><span>Cancelar</span></button>
         </div>
       </form>
     </section>

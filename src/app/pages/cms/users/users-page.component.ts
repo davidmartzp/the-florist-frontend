@@ -6,6 +6,7 @@ import { debounceTime, forkJoin } from 'rxjs';
 
 import { extractErrorMessage } from '../../../core/api.utils';
 import { AccessControlCatalog, PaginatedResponse, User } from '../../../core/models';
+import { SwalService } from '../../../core/services/swal.service';
 import { UsersApiService } from '../../../core/services/users-api.service';
 
 @Component({
@@ -17,6 +18,7 @@ import { UsersApiService } from '../../../core/services/users-api.service';
 export class UsersPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly usersApi = inject(UsersApiService);
+  private readonly swal = inject(SwalService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected filtersExpanded = signal(false);
@@ -41,8 +43,6 @@ export class UsersPageComponent implements OnInit {
   protected isFormModalOpen = false;
   protected isLoading = false;
   protected isSubmitting = false;
-  protected errorMessage = '';
-  protected successMessage = '';
 
   ngOnInit(): void {
     this.listForm.valueChanges
@@ -54,7 +54,6 @@ export class UsersPageComponent implements OnInit {
 
   protected loadData(page = this.response?.pagination.page ?? 1): void {
     this.isLoading = true;
-    this.errorMessage = '';
 
     forkJoin({
       users: this.usersApi.list({
@@ -71,7 +70,7 @@ export class UsersPageComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
         this.isLoading = false;
       },
     });
@@ -96,13 +95,11 @@ export class UsersPageComponent implements OnInit {
     }
 
     if (!this.editingUserId && !rawValue.password) {
-      this.errorMessage = 'La contraseña es obligatoria para crear usuarios.';
+      this.swal.error('La contraseña es obligatoria para crear usuarios.');
       return;
     }
 
     this.isSubmitting = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     const request$ = this.editingUserId
       ? this.usersApi.update(this.editingUserId, payload)
@@ -111,13 +108,13 @@ export class UsersPageComponent implements OnInit {
     request$.subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.successMessage = this.editingUserId ? 'Usuario actualizado.' : 'Usuario creado.';
+        this.swal.success(this.editingUserId ? 'Usuario actualizado.' : 'Usuario creado.');
         this.resetForm();
         this.loadData();
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -139,18 +136,25 @@ export class UsersPageComponent implements OnInit {
     this.isFormModalOpen = true;
   }
 
-  protected deactivateUser(user: User): void {
-    if (!confirm(`¿Desactivar a ${user.firstName} ${user.lastName}?`)) {
+  protected async toggleUserActive(user: User): Promise<void> {
+    const action = user.isActive ? 'desactivar' : 'activar';
+    const confirmed = await this.swal.confirm(
+      `¿${action.charAt(0).toUpperCase() + action.slice(1)} a ${user.firstName} ${user.lastName}?`,
+      '¿Estás seguro?',
+      'Sí, confirmar',
+      'Cancelar'
+    );
+    if (!confirmed) {
       return;
     }
 
-    this.usersApi.deactivate(user.id).subscribe({
+    this.usersApi.toggleActive(user.id).subscribe({
       next: () => {
-        this.successMessage = 'Usuario desactivado.';
+        this.swal.success(`${user.firstName} ${user.lastName} ${user.isActive ? 'desactivado' : 'activado'}.`);
         this.loadData(this.response?.pagination.page ?? 1);
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }

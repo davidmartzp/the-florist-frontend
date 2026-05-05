@@ -1,8 +1,8 @@
 .layout-shell {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 22%),
-    linear-gradient(180deg, #eff6ff 0%, #f8fafc 26%, #f8fafc 100%);
+    radial-gradient(circle at top left, rgba(52, 59, 43, 0.06), transparent 22%),
+    linear-gradient(180deg, #f5f4ec 0%, #f8f7f2 26%, #f8f7f2 100%);
 }
 
 .sidebar {
@@ -15,9 +15,9 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.95rem 0.8rem;
-  background: linear-gradient(180deg, #0f172a 0%, #111c35 100%);
-  color: #e2e8f0;
-  border-right: 1px solid rgba(148, 163, 184, 0.14);
+  background: linear-gradient(180deg, #343b2b 0%, #2a3022 100%);
+  color: #e8e5ca;
+  border-right: 1px solid rgba(204, 200, 189, 0.18);
 }
 
 .sidebar-top {
@@ -30,26 +30,27 @@
   gap: 0.15rem;
   padding: 0.8rem 0.85rem;
   border-radius: 0.95rem;
-  background: linear-gradient(145deg, rgba(37, 99, 235, 0.22), rgba(30, 41, 59, 0.55));
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: linear-gradient(145deg, rgba(74, 124, 89, 0.35), rgba(52, 59, 43, 0.65));
+  border: 1px solid rgba(204, 200, 189, 0.22);
   color: inherit;
   text-decoration: none;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.24);
+  box-shadow: 0 18px 45px rgba(26, 31, 21, 0.35);
 }
 
 .brand-card strong {
   font-size: 1rem;
   line-height: 1.1;
+  color: #e8e5ca;
 }
 
 .brand-card span:last-child {
-  color: #cbd5e1;
+  color: #ccc8bd;
   font-size: 0.78rem;
 }
 
 .brand-kicker,
 .sidebar-label {
-  color: #93c5fd;
+  color: #bbc4b3;
   font-size: 0.64rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -68,7 +69,7 @@
 
 .sidebar p {
   margin: 0.35rem 0 0;
-  color: #94a3b8;
+  color: #ccc8bd;
 }
 
 .nav-list {
@@ -91,8 +92,8 @@
 
 .nav-list a.active,
 .nav-list a:hover {
-  background: rgba(30, 41, 59, 0.92);
-  border-color: rgba(148, 163, 184, 0.16);
+  background: rgba(74, 124, 89, 0.35);
+  border-color: rgba(187, 196, 179, 0.25);
   transform: translateX(2px);
 }
 
@@ -101,8 +102,8 @@
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 999px;
-  background: #60a5fa;
-  box-shadow: 0 0 0 5px rgba(96, 165, 250, 0.18);
+  background: #b76028;
+  box-shadow: 0 0 0 5px rgba(183, 96, 40, 0.22);
 }
 
 .nav-item-label {
@@ -117,7 +118,22 @@
 }
 
 .sidebar-footer span {
-  color: #94a3b8;
+  color: #ccc8bd;
+}
+
+.sidebar-footer button {
+  background: rgba(187, 196, 179, 0.15);
+  color: #e8e5ca;
+  border: 1px solid rgba(187, 196, 179, 0.25);
+  box-shadow: none;
+  border-radius: 0.65rem;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.82rem;
+}
+
+.sidebar-footer button:hover:not(:disabled) {
+  background: rgba(183, 96, 40, 0.25);
+  border-color: rgba(183, 96, 40, 0.4);
 }
 
 .main-panel {
@@ -149,14 +165,14 @@
 
 .topbar h2 {
   margin: 0.2rem 0 0;
-  color: #0f172a;
+  color: #343b2b;
   font-size: 1.2rem;
   white-space: nowrap;
 }
 
 .page-kicker {
   margin: 0;
-  color: #2563eb;
+  color: #4a7c59;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -169,17 +185,17 @@
   padding: 0.55rem 0.8rem;
   min-width: auto;
   border-radius: 0.8rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: #f5f4ec;
+  border: 1px solid #e8e5ca;
   text-align: right;
 }
 
 .topbar-user-chip strong {
-  color: #1e3a8a;
+  color: #343b2b;
 }
 
 .topbar-user-chip span {
-  color: #475569;
+  color: #8a857a;
   font-size: 0.85rem;
 }
 

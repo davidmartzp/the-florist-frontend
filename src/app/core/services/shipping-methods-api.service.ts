@@ -22,7 +22,7 @@ export class ShippingMethodsApiService {
     return this.http.patch<ShippingMethod>(`${this.apiUrl}/${shippingMethodId}`, payload);
   }
 
-  remove(shippingMethodId: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${shippingMethodId}`);
+  toggleActive(shippingMethodId: number): Observable<{ message: string; isActive: boolean }> {
+    return this.http.patch<{ message: string; isActive: boolean }>(`${this.apiUrl}/${shippingMethodId}/toggle-active`, {});
   }
 }

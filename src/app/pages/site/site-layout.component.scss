@@ -9,7 +9,7 @@
 
 .site-header__content {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 1.5rem;
   min-height: 5.5rem;
@@ -23,7 +23,7 @@
 
 .site-nav {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 1.2rem;
 }
 
@@ -39,35 +39,36 @@
   border-color: currentColor;
 }
 
-.site-header__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.site-cart {
+/* Carrito en el menú - desktop y mobile */
+.site-nav-cart {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.75rem 0.95rem;
-  border-radius: 999px;
-  border: 1px solid rgba(51, 59, 43, 0.14);
-  background: var(--site-color-cream);
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+  color: var(--site-color-text);
   text-decoration: none;
+  border-bottom: 1px solid transparent;
 }
 
-.site-cart strong {
+.site-nav-cart.active {
+  color: var(--site-color-accent);
+  border-color: currentColor;
+}
+
+.site-nav-cart__count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.8rem;
-  height: 1.8rem;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding: 0 0.25rem;
   border-radius: 999px;
   background: var(--site-color-accent);
   color: #fff;
   font-family: var(--site-font-body);
   font-variant-numeric: tabular-nums lining-nums;
-  font-weight: 800;
+  font-weight: 700;
+  font-size: 0.7rem;
 }
 
 .site-main {
@@ -185,7 +186,6 @@
     padding: 1rem 0;
   }
 
-  .site-header__actions,
   .site-nav {
     flex-wrap: wrap;
     justify-content: center;

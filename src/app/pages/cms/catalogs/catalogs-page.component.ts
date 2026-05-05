@@ -7,6 +7,7 @@ import { debounceTime } from 'rxjs';
 import { extractErrorMessage } from '../../../core/api.utils';
 import { Catalog, PaginatedResponse } from '../../../core/models';
 import { CatalogsApiService } from '../../../core/services/catalogs-api.service';
+import { SwalService } from '../../../core/services/swal.service';
 
 @Component({
   selector: 'app-catalogs-page',
@@ -17,6 +18,7 @@ import { CatalogsApiService } from '../../../core/services/catalogs-api.service'
 export class CatalogsPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly catalogsApi = inject(CatalogsApiService);
+  private readonly swal = inject(SwalService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected filtersExpanded = signal(false);
@@ -38,8 +40,6 @@ export class CatalogsPageComponent implements OnInit {
   protected editingCatalogId: number | null = null;
   protected editingCatalogName: string | null = null;
   protected isFormModalOpen = false;
-  protected errorMessage = '';
-  protected successMessage = '';
 
   ngOnInit(): void {
     this.listForm.valueChanges
@@ -60,7 +60,7 @@ export class CatalogsPageComponent implements OnInit {
         this.response = response;
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -78,15 +78,14 @@ export class CatalogsPageComponent implements OnInit {
 
     request$.subscribe({
       next: (catalog: Catalog) => {
-        this.successMessage = this.editingCatalogId
+        this.swal.success(this.editingCatalogId
           ? `Catálogo "${catalog.name}" actualizado.`
-          : `Catálogo "${catalog.name}" creado.`;
-        this.errorMessage = '';
+          : `Catálogo "${catalog.name}" creado.`);
         this.resetForm();
         this.loadData();
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -108,18 +107,25 @@ export class CatalogsPageComponent implements OnInit {
     this.isFormModalOpen = true;
   }
 
-  protected deleteCatalog(catalog: Catalog): void {
-    if (!confirm(`¿Eliminar el catálogo ${catalog.name}?`)) {
+  protected async toggleCatalogActive(catalog: Catalog): Promise<void> {
+    const action = catalog.isActive ? 'desactivar' : 'activar';
+    const confirmed = await this.swal.confirm(
+      `¿${action.charAt(0).toUpperCase() + action.slice(1)} el catálogo "${catalog.name}"?`,
+      '¿Estás seguro?',
+      'Sí, confirmar',
+      'Cancelar'
+    );
+    if (!confirmed) {
       return;
     }
 
-    this.catalogsApi.remove(catalog.id).subscribe({
+    this.catalogsApi.toggleActive(catalog.id).subscribe({
       next: () => {
-        this.successMessage = 'Catálogo eliminado.';
+        this.swal.success(`Catálogo "${catalog.name}" ${catalog.isActive ? 'desactivado' : 'activado'}.`);
         this.loadData(this.response?.pagination.page ?? 1);
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -133,7 +139,6 @@ export class CatalogsPageComponent implements OnInit {
 
   protected changePage(direction: number): void {
     if (!this.response) {
-      
       return;
     }
 

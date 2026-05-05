@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { extractErrorMessage } from '../../../core/api.utils';
 import { AuthService } from '../../../core/services/auth.service';
 import { OrdersApiService } from '../../../core/services/orders-api.service';
+import { ProductsApiService } from '../../../core/services/products-api.service';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -19,22 +21,46 @@ import { OrdersApiService } from '../../../core/services/orders-api.service';
       </header>
 
       <div class="card-grid">
-        <article class="summary-card">
-          <h3>Usuario activo</h3>
-          <p *ngIf="authService.currentUser() as user">{{ user.firstName }} {{ user.lastName }}</p>
-          <small *ngIf="authService.currentUser() as user">{{ user.email }}</small>
+        <article
+          class="dash-card dash-card--user"
+          [class.dash-card--clickable]="authService.hasPermission('USERS')"
+          (click)="goTo('/admin-flowers/users')"
+        >
+          <div class="dash-card__icon"><i class="fas fa-user"></i></div>
+          <div class="dash-card__body">
+            <h3>Usuario activo</h3>
+            <p *ngIf="authService.currentUser() as user">{{ user.firstName }} {{ user.lastName }}</p>
+            <small *ngIf="authService.currentUser() as user">{{ user.email }}</small>
+          </div>
+          <div class="dash-card__arrow" *ngIf="authService.hasPermission('USERS')"><i class="fas fa-chevron-right"></i></div>
         </article>
 
-        <article class="summary-card">
-          <h3>Órdenes nuevas</h3>
-          <p class="metric-value">{{ pendingOrdersCount }}</p>
-          <small>{{ pendingOrdersLabel }}</small>
+        <article
+          class="dash-card dash-card--orders"
+          [class.dash-card--clickable]="authService.hasPermission('ORDERS')"
+          (click)="goTo('/admin-flowers/orders')"
+        >
+          <div class="dash-card__icon"><i class="fas fa-shopping-bag"></i></div>
+          <div class="dash-card__body">
+            <h3>Órdenes nuevas</h3>
+            <p class="metric-value">{{ pendingOrdersCount }}</p>
+            <small>{{ pendingOrdersLabel }}</small>
+          </div>
+          <div class="dash-card__arrow" *ngIf="authService.hasPermission('ORDERS')"><i class="fas fa-chevron-right"></i></div>
         </article>
 
-        <article class="summary-card">
-          <h3>Permisos activos</h3>
-          <p>{{ availableModules || 'Sin módulos habilitados' }}</p>
-          <small>El menú lateral se adapta a estos permisos</small>
+        <article
+          class="dash-card dash-card--stock"
+          [class.dash-card--clickable]="authService.hasPermission('PRODUCTS')"
+          (click)="goTo('/admin-flowers/products')"
+        >
+          <div class="dash-card__icon"><i class="fas fa-box-open"></i></div>
+          <div class="dash-card__body">
+            <h3>Sin stock</h3>
+            <p class="metric-value">{{ outOfStockCount }}</p>
+            <small>{{ outOfStockLabel }}</small>
+          </div>
+          <div class="dash-card__arrow" *ngIf="authService.hasPermission('PRODUCTS')"><i class="fas fa-chevron-right"></i></div>
         </article>
       </div>
     </section>
@@ -42,19 +68,37 @@ import { OrdersApiService } from '../../../core/services/orders-api.service';
 })
 export class DashboardPageComponent implements OnInit {
   protected readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   private readonly ordersApi = inject(OrdersApiService);
-  protected readonly availableModules = ['USERS', 'PRODUCTS', 'ORDERS']
-    .filter((permission) => this.authService.hasPermission(permission))
-    .join(' · ');
-  protected readonly moduleCount = ['USERS', 'PRODUCTS', 'ORDERS']
-    .filter((permission) => this.authService.hasPermission(permission))
-    .length;
+  private readonly productsApi = inject(ProductsApiService);
+
   protected pendingOrdersCount = 0;
-  protected pendingOrdersLabel = 'Cargando órdenes pendientes...';
+  protected pendingOrdersLabel = 'Cargando...';
+  protected outOfStockCount = 0;
+  protected outOfStockLabel = 'Cargando...';
 
   ngOnInit(): void {
+    this.loadPendingOrders();
+    this.loadOutOfStockProducts();
+  }
+
+  protected goTo(route: string): void {
+    if (!this.authService.hasPermission(this.routeToPermission(route))) {
+      return;
+    }
+    this.router.navigate([route]);
+  }
+
+  private routeToPermission(route: string): string {
+    if (route.includes('/users')) return 'USERS';
+    if (route.includes('/orders')) return 'ORDERS';
+    if (route.includes('/products') || route.includes('/categories') || route.includes('/catalogs')) return 'PRODUCTS';
+    return '';
+  }
+
+  private loadPendingOrders(): void {
     if (!this.authService.hasPermission('ORDERS')) {
-      this.pendingOrdersLabel = 'Tu perfil no tiene acceso al módulo de órdenes';
+      this.pendingOrdersLabel = 'Sin acceso al módulo';
       return;
     }
 
@@ -68,12 +112,38 @@ export class DashboardPageComponent implements OnInit {
       next: (response) => {
         this.pendingOrdersCount = response.pagination.totalItems;
         this.pendingOrdersLabel = this.pendingOrdersCount === 1
-          ? 'Hay 1 orden nueva pendiente por revisar'
-          : `Hay ${this.pendingOrdersCount} órdenes nuevas pendientes por revisar`;
+          ? '1 orden pendiente'
+          : `${this.pendingOrdersCount} órdenes pendientes`;
       },
       error: (error) => {
         this.pendingOrdersCount = 0;
         this.pendingOrdersLabel = extractErrorMessage(error);
+      },
+    });
+  }
+
+  private loadOutOfStockProducts(): void {
+    if (!this.authService.hasPermission('PRODUCTS')) {
+      this.outOfStockLabel = 'Sin acceso al módulo';
+      return;
+    }
+
+    this.productsApi.list({
+      page: 1,
+      pageSize: 1,
+      inStock: 'false',
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    }).subscribe({
+      next: (response) => {
+        this.outOfStockCount = response.pagination.totalItems;
+        this.outOfStockLabel = this.outOfStockCount === 1
+          ? '1 producto agotado'
+          : `${this.outOfStockCount} productos agotados`;
+      },
+      error: (error) => {
+        this.outOfStockCount = 0;
+        this.outOfStockLabel = extractErrorMessage(error);
       },
     });
   }

@@ -1,3 +1,22 @@
+/* Toggle entre vistas mobile/desktop */
+.cart-view--mobile {
+  display: block;
+}
+
+.cart-view--desktop {
+  display: none;
+}
+
+@media (min-width: 721px) {
+  .cart-view--mobile {
+    display: none;
+  }
+
+  .cart-view--desktop {
+    display: block;
+  }
+}
+
 .cart-grid {
   display: grid;
   gap: 1rem;

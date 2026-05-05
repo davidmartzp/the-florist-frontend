@@ -7,6 +7,7 @@ import { debounceTime } from 'rxjs';
 import { extractErrorMessage } from '../../../core/api.utils';
 import { PaginatedResponse, ShippingMethod } from '../../../core/models';
 import { ShippingMethodsApiService } from '../../../core/services/shipping-methods-api.service';
+import { SwalService } from '../../../core/services/swal.service';
 
 @Component({
   selector: 'app-shipping-methods-page',
@@ -17,6 +18,7 @@ import { ShippingMethodsApiService } from '../../../core/services/shipping-metho
 export class ShippingMethodsPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly shippingMethodsApi = inject(ShippingMethodsApiService);
+  private readonly swal = inject(SwalService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected filtersExpanded = signal(false);
@@ -39,8 +41,6 @@ export class ShippingMethodsPageComponent implements OnInit {
   protected editingShippingMethodId: number | null = null;
   protected editingShippingMethodName: string | null = null;
   protected isFormModalOpen = false;
-  protected errorMessage = '';
-  protected successMessage = '';
 
   ngOnInit(): void {
     this.listForm.valueChanges
@@ -61,7 +61,7 @@ export class ShippingMethodsPageComponent implements OnInit {
         this.response = response;
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -83,15 +83,14 @@ export class ShippingMethodsPageComponent implements OnInit {
 
     request$.subscribe({
       next: (shippingMethod: ShippingMethod) => {
-        this.successMessage = this.editingShippingMethodId
+        this.swal.success(this.editingShippingMethodId
           ? `Método "${shippingMethod.name}" actualizado.`
-          : `Método "${shippingMethod.name}" creado.`;
-        this.errorMessage = '';
+          : `Método "${shippingMethod.name}" creado.`);
         this.resetForm();
         this.loadData();
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -114,18 +113,25 @@ export class ShippingMethodsPageComponent implements OnInit {
     this.isFormModalOpen = true;
   }
 
-  protected deleteShippingMethod(shippingMethod: ShippingMethod): void {
-    if (!confirm(`¿Eliminar el método ${shippingMethod.name}?`)) {
+  protected async toggleShippingMethodActive(shippingMethod: ShippingMethod): Promise<void> {
+    const action = shippingMethod.isActive ? 'desactivar' : 'activar';
+    const confirmed = await this.swal.confirm(
+      `¿${action.charAt(0).toUpperCase() + action.slice(1)} el método "${shippingMethod.name}"?`,
+      '¿Estás seguro?',
+      'Sí, confirmar',
+      'Cancelar'
+    );
+    if (!confirmed) {
       return;
     }
 
-    this.shippingMethodsApi.remove(shippingMethod.id).subscribe({
+    this.shippingMethodsApi.toggleActive(shippingMethod.id).subscribe({
       next: () => {
-        this.successMessage = 'Método de envío eliminado.';
+        this.swal.success(`Método "${shippingMethod.name}" ${shippingMethod.isActive ? 'desactivado' : 'activado'}.`);
         this.loadData(this.response?.pagination.page ?? 1);
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }

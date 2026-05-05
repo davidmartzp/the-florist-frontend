@@ -14,7 +14,7 @@ export class TagsApiService {
     return this.http.post<Tag>(this.apiUrl, payload);
   }
 
-  remove(tagId: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${tagId}`);
+  toggleActive(tagId: number): Observable<{ message: string; isActive: boolean }> {
+    return this.http.patch<{ message: string; isActive: boolean }>(`${this.apiUrl}/${tagId}/toggle-active`, {});
   }
 }

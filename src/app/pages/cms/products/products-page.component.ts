@@ -9,6 +9,7 @@ import { Catalog, Category, PaginatedResponse, Product, ProductPriceHistoryEntry
 import { CatalogsApiService } from '../../../core/services/catalogs-api.service';
 import { CategoriesApiService } from '../../../core/services/categories-api.service';
 import { ProductsApiService } from '../../../core/services/products-api.service';
+import { SwalService } from '../../../core/services/swal.service';
 import { TagsApiService } from '../../../core/services/tags-api.service';
 
 @Component({
@@ -23,6 +24,7 @@ export class ProductsPageComponent implements OnInit {
   private readonly categoriesApi = inject(CategoriesApiService);
   private readonly catalogsApi = inject(CatalogsApiService);
   private readonly tagsApi = inject(TagsApiService);
+  private readonly swal = inject(SwalService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected filtersExpanded = signal(false);
@@ -61,8 +63,6 @@ export class ProductsPageComponent implements OnInit {
   protected editingProductId: number | null = null;
   protected editingProductName: string | null = null;
   protected isFormModalOpen = false;
-  protected errorMessage = '';
-  protected successMessage = '';
   protected isLoading = false;
 
   ngOnInit(): void {
@@ -84,7 +84,7 @@ export class ProductsPageComponent implements OnInit {
         this.catalogs = catalogs.items;
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -105,7 +105,7 @@ export class ProductsPageComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
         this.isLoading = false;
       },
     });
@@ -133,15 +133,14 @@ export class ProductsPageComponent implements OnInit {
 
     request$.subscribe({
       next: (product: Product) => {
-        this.successMessage = this.editingProductId
+        this.swal.success(this.editingProductId
           ? `Producto "${product.name}" actualizado.`
-          : `Producto "${product.name}" creado.`;
-        this.errorMessage = '';
+          : `Producto "${product.name}" creado.`);
         this.resetForm();
         this.loadProducts();
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -169,7 +168,7 @@ export class ProductsPageComponent implements OnInit {
         this.priceHistory = history;
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -179,18 +178,25 @@ export class ProductsPageComponent implements OnInit {
     this.isFormModalOpen = true;
   }
 
-  protected deleteProduct(product: Product): void {
-    if (!confirm(`¿Eliminar el producto ${product.name}?`)) {
+  protected async toggleProductActive(product: Product): Promise<void> {
+    const action = product.isActive ? 'desactivar' : 'activar';
+    const confirmed = await this.swal.confirm(
+      `¿${action.charAt(0).toUpperCase() + action.slice(1)} el producto "${product.name}"?`,
+      '¿Estás seguro?',
+      'Sí, confirmar',
+      'Cancelar'
+    );
+    if (!confirmed) {
       return;
     }
 
-    this.productsApi.remove(product.id).subscribe({
+    this.productsApi.toggleActive(product.id).subscribe({
       next: () => {
-        this.successMessage = 'Producto eliminado.';
+        this.swal.success(`Producto "${product.name}" ${product.isActive ? 'desactivado' : 'activado'}.`);
         this.loadProducts(this.response?.pagination.page ?? 1);
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -206,26 +212,35 @@ export class ProductsPageComponent implements OnInit {
         this.availableTags = this.mergeTags([...this.availableTags, tag]);
         this.toggleArraySelection('tagIds', tag.id, true);
         this.tagForm.reset({ name: '' });
+        this.swal.success(`Tag "${tag.name}" creado.`);
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
 
-  protected deleteTag(tag: Tag): void {
-    if (!confirm(`¿Eliminar el tag ${tag.name}?`)) {
+  protected async toggleTagActive(tag: Tag): Promise<void> {
+    const action = tag.isActive ? 'desactivar' : 'activar';
+    const confirmed = await this.swal.confirm(
+      `¿${action.charAt(0).toUpperCase() + action.slice(1)} el tag "${tag.name}"?`,
+      '¿Estás seguro?',
+      'Sí, confirmar',
+      'Cancelar'
+    );
+    if (!confirmed) {
       return;
     }
 
-    this.tagsApi.remove(tag.id).subscribe({
+    this.tagsApi.toggleActive(tag.id).subscribe({
       next: () => {
-        this.availableTags = this.availableTags.filter((item) => item.id !== tag.id);
-        this.toggleArraySelection('tagIds', tag.id, false);
-        this.successMessage = 'Tag eliminado.';
+        this.availableTags = this.availableTags.map((item) =>
+          item.id === tag.id ? { ...item, isActive: !tag.isActive } : item
+        );
+        this.swal.success(`Tag "${tag.name}" ${tag.isActive ? 'desactivado' : 'activado'}.`);
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }

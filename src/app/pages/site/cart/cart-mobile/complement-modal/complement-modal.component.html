@@ -1,0 +1,28 @@
+<div class="complement-modal" *ngIf="complement" (click)="onBackdropClick($event)">
+  <div class="complement-modal__panel" role="dialog" aria-modal="true" [attr.aria-label]="'Detalle de ' + complement.name">
+    <button
+      type="button"
+      class="complement-modal__close"
+      (click)="close.emit()"
+      aria-label="Cerrar"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+
+    <img [src]="complement.image" [alt]="complement.name" class="complement-modal__image" />
+
+    <div class="complement-modal__body">
+      <h2 class="complement-modal__name">{{ complement.name }}</h2>
+      <p class="complement-modal__description">{{ complement.description }}</p>
+      <strong class="complement-modal__price">{{ formatPrice(complement.price) }}</strong>
+
+      <button
+        type="button"
+        class="site-button site-button--primary complement-modal__cta"
+        (click)="onAdd()"
+      >
+        + Agregar al carrito
+      </button>
+    </div>
+  </div>
+</div>

@@ -19,9 +19,11 @@ export class SiteLayoutComponent {
   protected readonly footerLogoUrl = siteBrandAssets.logoWhite;
   protected readonly cartCount = this.siteCartService.cartCount;
   protected readonly currentYear = () => new Date().getFullYear();
-  protected readonly navItems = [
+  protected readonly navItemsBeforeCart = [
     { label: 'Inicio', route: '/' },
-    { label: 'Carrito', route: '/carrito' },
+  ];
+
+  protected readonly navItemsAfterCart = [
     { label: 'Checkout', route: '/checkout' },
   ];
 }

@@ -8,39 +8,42 @@
       <button type="button" class="filter-toggle-btn" [class.active]="filtersExpanded()" (click)="filtersExpanded.set(!filtersExpanded())">
         Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
       </button>
+      <button type="button" class="action-button action-neutral" (click)="exportExcel()" [disabled]="exporting()">
+        <i class="fas" [class.fa-file-excel]="!exporting()" [class.fa-spinner]="exporting()" [class.fa-spin]="exporting()" aria-hidden="true"></i><span>{{ exporting() ? 'Exportando…' : 'Exportar Excel' }}</span>
+      </button>
       <button type="button" class="action-button action-create" (click)="openCreateModal()">
-        <span aria-hidden="true">＋</span><span>Nueva orden</span>
+        <i class="fas fa-plus" aria-hidden="true"></i><span>Nueva orden</span>
       </button>
     </div>
   </header>
 
   <form [formGroup]="listForm" class="filter-panel" [class.open]="filtersExpanded()">
     <div class="filter-panel__body">
-      <label class="filter-label"><span>Estado</span><select formControlName="status"><option value="">Todos</option><option *ngFor="let status of orderStatuses" [value]="status">{{ status }}</option></select></label>
+      <label class="filter-label"><span>Estado</span><select formControlName="status"><option value="">Todos</option><option *ngFor="let status of orderStatuses" [value]="status">{{ statusLabel(status) }}</option></select></label>
+      <label class="filter-label"><span>Pago</span><select formControlName="isPaid"><option value="">Todos</option><option value="true">Pagado</option><option value="false">Sin pagar</option></select></label>
       <label class="filter-label"><span>Ordenar por</span><select formControlName="sortBy"><option value="createdAt">Creación</option><option value="updatedAt">Actualización</option><option value="subtotal">Subtotal</option><option value="taxTotal">IVA</option><option value="shippingPrice">Shipping</option><option value="total">Total</option></select></label>
       <label class="filter-label"><span>Dirección</span><select formControlName="sortOrder"><option value="desc">Descendente</option><option value="asc">Ascendente</option></select></label>
       <label class="filter-label"><span>Por página</span><select formControlName="pageSize"><option [value]="10">10</option><option [value]="20">20</option><option [value]="50">50</option></select></label>
     </div>
   </form>
 
-  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
-  <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
 
   <section class="section-card">
     <div class="table-wrapper" *ngIf="response">
         <table>
-          <thead><tr><th>Orden</th><th>Cliente</th><th>Entrega</th><th>Totales</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <thead><tr><th>Orden</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead>
           <tbody>
             <tr *ngFor="let order of response.items">
-              <td>{{ order.code }}<div class="muted">{{ order.createdAt | date:'short' }}</div><div class="muted">Registró: {{ order.user?.firstName }} {{ order.user?.lastName }}</div><div class="muted" *ngIf="order.paymentProvider === 'mercadopago'">MP · {{ order.paymentReference }}</div></td>
-              <td>{{ order.customerName || 'Sin nombre' }}<div class="muted">{{ order.customerEmail || 'Sin email' }}</div><div class="muted">{{ order.customerPhone || 'Sin teléfono' }}</div></td>
-              <td>{{ order.shipping?.name || 'Sin envío' }}<div class="muted">{{ order.shippingAddress || 'Sin dirección de entrega' }}</div><div class="muted">{{ order.includesCard ? (order.cardMessage ? ('Tarjeta: ' + order.cardMessage) : 'Tarjeta incluida sin mensaje') : 'Sin tarjeta' }}</div><div class="muted">{{ order.shipping?.includesPrice ? (order.shipping?.price | currency:'COP':'symbol-narrow':'1.0-0') : 'No suma al total' }}</div></td>
-              <td>Sub: {{ order.subtotal | currency:'COP':'symbol-narrow':'1.0-0' }}<br />IVA: {{ order.taxTotal | currency:'COP':'symbol-narrow':'1.0-0' }}<br />Total: {{ order.total | currency:'COP':'symbol-narrow':'1.0-0' }}</td>
-              <td><span class="status-pill">{{ order.status }}</span></td>
+              <td>{{ order.code }}<div class="muted" *ngIf="order.deliveryDate">{{ order.deliveryDate | date:'mediumDate' }}</div><div class="muted" *ngIf="order.paymentProvider">{{ channelLabel(order.paymentProvider) }}</div></td>
+              <td>{{ order.customerName || 'Sin nombre' }}<div class="muted">{{ order.customerEmail || 'Sin email' }}</div></td>
+              <td>{{ order.shipping?.name || 'Sin envío' }}</td>
+              <td>{{ order.total | currency:'COP':'symbol-narrow':'1.0-0' }}</td>
+              <td><span class="status-pill">{{ statusLabel(order.status) }}</span></td>
               <td>
                 <div class="table-actions table-actions--compact">
-                  <button type="button" class="icon-button action-edit" (click)="editOrder(order)" title="Editar orden" aria-label="Editar orden">✎</button>
-                  <button type="button" class="icon-button action-delete" (click)="deleteOrder(order)" title="Eliminar orden" aria-label="Eliminar orden">🗑</button>
+                  <button type="button" class="icon-button action-edit" (click)="editOrder(order)" title="Editar orden" aria-label="Editar orden"><i class="fas fa-pen"></i></button>
+                  <button type="button" class="icon-button" [class.action-delete]="order.isActive" [class.action-create]="!order.isActive" (click)="toggleOrderActive(order)" [title]="order.isActive ? 'Desactivar orden' : 'Activar orden'" [attr.aria-label]="order.isActive ? 'Desactivar orden' : 'Activar orden'"><i class="fas" [class.fa-eye-slash]="order.isActive" [class.fa-eye]="!order.isActive"></i></button>
                 </div>
               </td>
             </tr>
@@ -57,7 +60,7 @@
           <h3>{{ editingOrderCode ? ('Editar ' + editingOrderCode) : 'Nueva orden' }}</h3>
           <p>Construye la orden en una sola vista con ítems, shipping y totales estimados.</p>
         </div>
-        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar">✕</button>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar"><i class="fas fa-times"></i></button>
       </header>
 
       <div *ngIf="isPaidWithMercadoPago" class="mp-lock-notice">
@@ -65,53 +68,92 @@
         <div class="mp-reference-row">
           <span class="mp-reference-label">Referencia MP:</span>
           <code class="mp-reference-value">{{ editingOrder?.paymentReference }}</code>
-          <button type="button" class="icon-button action-neutral" (click)="copyReference()" title="Copiar referencia" aria-label="Copiar referencia">⎘</button>
+          <button type="button" class="icon-button action-neutral" (click)="copyReference()" title="Copiar referencia" aria-label="Copiar referencia"><i class="fas fa-copy"></i></button>
         </div>
       </div>
 
+      <nav class="modal-tabs">
+        <button type="button" class="modal-tab" [class.active]="activeTab() === 'cliente'" (click)="activeTab.set('cliente')"><i class="fas fa-user"></i> Cliente</button>
+        <button type="button" class="modal-tab" [class.active]="activeTab() === 'envio'" (click)="activeTab.set('envio')"><i class="fas fa-truck"></i> Envío</button>
+        <button type="button" class="modal-tab" [class.active]="activeTab() === 'items'" (click)="activeTab.set('items')"><i class="fas fa-box"></i> Items</button>
+      </nav>
+
       <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
-        <div class="form-grid">
-          <label><span>Usuario</span><select formControlName="userId"><option [value]="0">Selecciona</option><option *ngFor="let user of users" [value]="user.id">{{ user.firstName }} {{ user.lastName }} · {{ user.email }}</option></select></label>
-          <label><span>Nombre cliente</span><input type="text" formControlName="customerName" placeholder="Quién recibe el pedido" /></label>
-          <label><span>Email cliente</span><input type="email" formControlName="customerEmail" placeholder="cliente@correo.com" /></label>
-          <label><span>Teléfono cliente</span><input type="text" formControlName="customerPhone" placeholder="3001234567" /></label>
-          <label><span>Estado</span><select formControlName="status"><option *ngFor="let status of orderStatuses" [value]="status">{{ status }}</option></select></label>
-          <label><span>Método de envío</span><select formControlName="shippingMethodId"><option value="">Sin envío</option><option *ngFor="let shippingMethod of shippingMethods" [value]="shippingMethod.id">{{ shippingMethod.name }} · {{ (shippingMethod.price ?? 0) | currency:'COP':'symbol-narrow':'1.0-0' }}</option></select></label>
-          <label><span>Precio envío</span><input type="number" min="0" step="0.01" formControlName="shippingPrice" [placeholder]="shippingPricePlaceholder()" /></label>
-          <label class="checkbox-item"><input type="checkbox" formControlName="includeShippingPrice" /><span>Sumar shipping al total</span></label>
-          <label class="checkbox-item"><input type="checkbox" formControlName="includesCard" /><span>Agregar tarjeta al pedido</span></label>
-        </div>
-
-        <label><span>Dirección de envío</span><textarea rows="2" formControlName="shippingAddress" placeholder="Dirección, barrio, ciudad y referencias"></textarea></label>
-
-        <label *ngIf="form.controls.includesCard.value"><span>Mensaje en la tarjeta</span><textarea rows="3" formControlName="cardMessage" placeholder="Escribe el mensaje que acompañará el arreglo"></textarea></label>
-
-        <div class="inline-grid">
-          <h3>Items</h3>
-          <div formArrayName="items" class="inline-grid">
-            <div class="item-row" *ngFor="let item of items.controls; let index = index" [formGroupName]="index">
-              <select formControlName="productId">
-                <option [value]="0">Selecciona producto</option>
-                <option *ngFor="let product of products" [value]="product.id">{{ product.name }} · {{ product.price | currency:'COP':'symbol-narrow':'1.0-0' }} · stock {{ product.stock }}</option>
+        <div class="tab-panel" [class.active]="activeTab() === 'cliente'">
+          <div class="form-grid">
+            <label><span>Nombre cliente</span><input type="text" formControlName="customerName" placeholder="Quién recibe el pedido" /></label>
+            <label><span>Email cliente</span><input type="email" formControlName="customerEmail" placeholder="cliente@correo.com" /></label>
+            <label><span>Teléfono cliente</span><input type="text" formControlName="customerPhone" placeholder="3001234567" /></label>
+            <label><span>Tipo documento *</span><select formControlName="billingDocumentType"><option value="">Selecciona</option><option *ngFor="let t of billingDocumentTypes" [value]="t">{{ t }}</option></select></label>
+            <label><span>Documento *</span><input type="text" formControlName="billingDocument" placeholder="Número de documento" /></label>
+            <label><span>Ciudad</span><input type="text" formControlName="billingCity" placeholder="Ciudad" /></label>
+            <label class="form-full"><span>Dirección de facturación</span><textarea rows="2" formControlName="billingAddress" placeholder="Dirección para la factura (opcional)"></textarea></label>
+            <label>
+              <span>Canal de venta</span>
+              <select formControlName="paymentProvider">
+                <option value="">Sin especificar</option>
+                <option *ngFor="let c of cmsPaymentProviders" [value]="c">{{ channelLabel(c) }}</option>
+                <option value="mercadopago" *ngIf="isPaidWithMercadoPago">MercadoPago</option>
               </select>
-              <input type="number" min="1" step="1" formControlName="quantity" placeholder="Cantidad" />
-              <button type="button" class="icon-button action-delete" (click)="removeItem(index)" title="Quitar item" aria-label="Quitar item" *ngIf="!isPaidWithMercadoPago">🗑</button>
-            </div>
+            </label>
+            <ng-container *ngIf="editingOrderId">
+              <label>
+                <span>Estado</span>
+                <select formControlName="status">
+                  <option *ngFor="let status of availableStatuses()" [value]="status" [disabled]="status === 'completed' && !form.controls.isPaid.value">{{ statusLabel(status) }}</option>
+                </select>
+              </label>
+              <label class="checkbox-item" *ngIf="form.controls.status.value === 'confirmed'">
+                <input type="checkbox" formControlName="isPaid" /><span>Orden pagada</span>
+              </label>
+            </ng-container>
           </div>
-          <button type="button" class="action-button action-create" (click)="addItem()" *ngIf="!isPaidWithMercadoPago"><span aria-hidden="true">＋</span><span>Agregar item</span></button>
         </div>
 
-        <div class="summary-card">
-          <h3>Vista previa</h3>
-          <p>Subtotal: {{ orderPreview().subtotal | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
-          <p>IVA: {{ orderPreview().taxTotal | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
-          <p>Shipping: {{ orderPreview().shipping | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
-          <p><strong>Total: {{ orderPreview().total | currency:'COP':'symbol-narrow':'1.0-0' }}</strong></p>
+        <div class="tab-panel" [class.active]="activeTab() === 'envio'">
+          <div class="form-grid">
+            <label><span>Método de envío</span><select formControlName="shippingMethodId"><option value="">Sin envío</option><option *ngFor="let shippingMethod of shippingMethods" [value]="shippingMethod.id">{{ shippingMethod.name }} · {{ (shippingMethod.price ?? 0) | currency:'COP':'symbol-narrow':'1.0-0' }}</option></select></label>
+            <label><span>Precio envío</span><input type="number" min="0" step="0.01" formControlName="shippingPrice" [placeholder]="shippingPricePlaceholder()" /></label>
+            <label class="checkbox-item"><input type="checkbox" formControlName="includeShippingPrice" /><span>Sumar shipping al total</span></label>
+          </div>
+          <label><span>Dirección de envío {{ isShippingRequired() ? '*' : '' }}</span><textarea rows="2" formControlName="shippingAddress" placeholder="Dirección, barrio, ciudad y referencias"></textarea></label>
+
+          <div class="form-grid" style="margin-top:0.5rem">
+            <label class="checkbox-item"><input type="checkbox" formControlName="includesCard" /><span>Agregar tarjeta al pedido</span></label>
+            <label><span>Nombre receptor {{ isShippingRequired() ? '*' : '' }}</span><input type="text" formControlName="receiverName" placeholder="Quién recibe" /></label>
+            <label><span>Teléfono receptor {{ isShippingRequired() ? '*' : '' }}</span><input type="text" formControlName="receiverPhone" placeholder="3001234567" /></label>
+            <label><span>Día de envío</span><input type="date" formControlName="deliveryDate" /></label>
+          </div>
+          <label *ngIf="form.controls.includesCard.value"><span>Mensaje en la tarjeta</span><textarea rows="3" formControlName="cardMessage" placeholder="Escribe el mensaje que acompañará el arreglo"></textarea></label>
+          <label *ngIf="form.controls.includesCard.value"><span>Firma tarjeta</span><input type="text" formControlName="cardSignature" placeholder="Nombre de quien firma" /></label>
+        </div>
+
+        <div class="tab-panel" [class.active]="activeTab() === 'items'">
+          <div class="inline-grid">
+            <div formArrayName="items" class="inline-grid">
+              <div class="item-row" *ngFor="let item of items.controls; let index = index" [formGroupName]="index">
+                <select formControlName="productId">
+                  <option [value]="0">Selecciona producto</option>
+                  <option *ngFor="let product of availableProducts(index)" [value]="product.id">{{ product.name }} · {{ product.price | currency:'COP':'symbol-narrow':'1.0-0' }} · stock {{ product.stock }}</option>
+                </select>
+                <input type="number" min="1" step="1" formControlName="quantity" placeholder="Cantidad" />
+                <button type="button" class="icon-button action-delete" (click)="removeItem(index)" title="Quitar item" aria-label="Quitar item" *ngIf="!isPaidWithMercadoPago"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            <button type="button" class="action-button action-create" (click)="addItem()" *ngIf="!isPaidWithMercadoPago"><i class="fas fa-plus" aria-hidden="true"></i><span>Agregar item</span></button>
+          </div>
+          <div class="summary-card">
+            <h3>Vista previa</h3>
+            <p>Subtotal: {{ orderPreview().subtotal | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
+            <p>IVA: {{ orderPreview().taxTotal | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
+            <p>Shipping: {{ orderPreview().shipping | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
+            <p><strong>Total: {{ orderPreview().total | currency:'COP':'symbol-narrow':'1.0-0' }}</strong></p>
+          </div>
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="action-button action-create"><span aria-hidden="true">{{ editingOrderCode ? '✓' : '＋' }}</span><span>{{ editingOrderCode ? 'Guardar cambios' : 'Crear orden' }}</span></button>
-          <button type="button" class="action-button action-neutral" (click)="resetForm()"><span aria-hidden="true">✕</span><span>Cancelar</span></button>
+          <button type="submit" class="action-button action-create" *ngIf="!isCompletedOrder || completedOrderCanEditShipping"><i class="fas" [class.fa-check]="editingOrderCode" [class.fa-plus]="!editingOrderCode" aria-hidden="true"></i><span>{{ editingOrderCode ? 'Guardar cambios' : 'Crear orden' }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><i class="fas fa-times" aria-hidden="true"></i><span>Cancelar</span></button>
         </div>
       </form>
     </section>

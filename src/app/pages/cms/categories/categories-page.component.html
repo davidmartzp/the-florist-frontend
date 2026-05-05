@@ -9,7 +9,7 @@
         Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
       </button>
       <button type="button" class="action-button action-create" (click)="openCreateModal()">
-        <span aria-hidden="true">＋</span><span>Nueva categoría</span>
+        <i class="fas fa-plus" aria-hidden="true"></i><span>Nueva categoría</span>
       </button>
     </div>
   </header>
@@ -22,8 +22,7 @@
     </div>
   </form>
 
-  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
-  <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
 
   <section class="section-card">
     <div class="table-wrapper" *ngIf="response">
@@ -36,8 +35,8 @@
               <td>{{ category.description || '—' }}</td>
               <td>
                 <div class="table-actions table-actions--compact">
-                  <button type="button" class="icon-button action-edit" (click)="editCategory(category)" title="Editar categoría" aria-label="Editar categoría">✎</button>
-                  <button type="button" class="icon-button action-delete" (click)="deleteCategory(category)" title="Eliminar categoría" aria-label="Eliminar categoría">🗑</button>
+                  <button type="button" class="icon-button action-edit" (click)="editCategory(category)" title="Editar categoría" aria-label="Editar categoría"><i class="fas fa-pen"></i></button>
+                  <button type="button" class="icon-button" [class.action-delete]="category.isActive" [class.action-create]="!category.isActive" (click)="toggleCategoryActive(category)" [title]="category.isActive ? 'Desactivar categoría' : 'Activar categoría'" [attr.aria-label]="category.isActive ? 'Desactivar categoría' : 'Activar categoría'"><i class="fas" [class.fa-eye-slash]="category.isActive" [class.fa-eye]="!category.isActive"></i></button>
                 </div>
               </td>
             </tr>
@@ -54,7 +53,7 @@
           <h3>{{ editingCategoryName ? ('Editar ' + editingCategoryName) : 'Nueva categoría' }}</h3>
           <p>Gestiona la clasificación principal de los productos.</p>
         </div>
-        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar">✕</button>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar"><i class="fas fa-times"></i></button>
       </header>
 
       <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
@@ -62,8 +61,8 @@
         <label><span>Slug</span><input type="text" formControlName="slug" /></label>
         <label><span>Descripción</span><textarea rows="4" formControlName="description"></textarea></label>
         <div class="form-actions">
-          <button type="submit" class="action-button action-create"><span aria-hidden="true">{{ editingCategoryName ? '✓' : '＋' }}</span><span>{{ editingCategoryName ? 'Guardar cambios' : 'Crear categoría' }}</span></button>
-          <button type="button" class="action-button action-neutral" (click)="resetForm()"><span aria-hidden="true">✕</span><span>Cancelar</span></button>
+          <button type="submit" class="action-button action-create"><i class="fas" [class.fa-check]="editingCategoryName" [class.fa-plus]="!editingCategoryName" aria-hidden="true"></i><span>{{ editingCategoryName ? 'Guardar cambios' : 'Crear categoría' }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><i class="fas fa-times" aria-hidden="true"></i><span>Cancelar</span></button>
         </div>
       </form>
     </section>

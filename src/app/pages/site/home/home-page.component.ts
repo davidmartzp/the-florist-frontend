@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { SiteCategoriesApiService } from '../../../core/services/site-categories-api.service';
 import { SiteProductsApiService } from '../../../core/services/site-products-api.service';
@@ -11,6 +10,14 @@ import {
   siteCommitments,
 } from '../site-content';
 import { Product } from '../../../core/models';
+import { BannerCarouselComponent, BannerSlide } from './banner-carousel/banner-carousel.component';
+import { HeroSectionComponent, HeroStat } from './hero-section/hero-section.component';
+import {
+  FeaturedProductsSectionComponent,
+  FeaturedProduct,
+  CategoryFilter as FeaturedCategoryFilter,
+} from './featured-products-section/featured-products-section.component';
+import { StorySectionComponent } from './story-section/story-section.component';
 
 interface CategoryFilter {
   id: number | 'all';
@@ -20,13 +27,19 @@ interface CategoryFilter {
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [
+    CommonModule,
+    BannerCarouselComponent,
+    // HeroSectionComponent, // oculto temporalmente
+    FeaturedProductsSectionComponent,
+    StorySectionComponent,
+  ],
   templateUrl: './home-page.component.html',
   styleUrls: ['./home-page.component.scss'],
 })
 export class HomePageComponent {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly siteCategoriesApi = inject(SiteCategoriesApiService); // injected site categories api
+  private readonly siteCategoriesApi = inject(SiteCategoriesApiService);
   private readonly siteProductsApi = inject(SiteProductsApiService);
   private readonly selectedCategoryId = signal<number | 'all'>('all');
   private readonly isFilterTransitioning = signal(false);
@@ -65,15 +78,24 @@ export class HomePageComponent {
   protected readonly isProductFilterTransitioning = this.isFilterTransitioning.asReadonly();
   protected readonly isLoadingProducts = this.isLoadingProductsState.asReadonly();
 
-  protected readonly stats = [
+  protected readonly stats: HeroStat[] = [
     { value: '40+', label: 'años de tradición familiar' },
     { value: '100%', label: 'Directo desde el cultivo a la entrega' },
     { value: '100%', label: 'curaduría floral propia' },
   ];
 
-  protected readonly occasions = [
-  
+  protected readonly bannerSlides: BannerSlide[] = [
+    {
+      image: 'https://lafloreriabyflorescolon.co/banners/banner1.png',
+      alt: 'Banner 1 Día de la Madre - La Florería by Flores Colón',
+    },
+    {
+      image: 'https://lafloreriabyflorescolon.co/banners/banner2.png',
+      alt: 'Banner 2 Día de la Madre - La Florería by Flores Colón',
+    },
   ];
+
+  protected readonly occasions: string[] = [];
 
   public constructor() {
     this.destroyRef.onDestroy(() => {
@@ -84,6 +106,47 @@ export class HomePageComponent {
 
     this.loadCategories();
     this.loadProducts();
+  }
+
+  protected get featuredProducts(): FeaturedProduct[] {
+    return this.filteredProducts().map((product) => ({
+      slug: product.slug,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      image: product.image,
+      badge: product.badge,
+    }));
+  }
+
+  protected get featuredFilters(): FeaturedCategoryFilter[] {
+    return this.productFilters().map((filter) => ({
+      id: filter.id,
+      label: filter.label,
+    }));
+  }
+
+  protected onCategoryFilterChange(categoryId: number | 'all'): void {
+    if (this.selectedCategoryId() === categoryId) {
+      return;
+    }
+
+    if (this.filterTransitionTimeout) {
+      clearTimeout(this.filterTransitionTimeout);
+    }
+
+    this.isFilterTransitioning.set(true);
+    this.selectedCategoryId.set(categoryId);
+
+    this.filterTransitionTimeout = setTimeout(() => {
+      this.isFilterTransitioning.set(false);
+      this.filterTransitionTimeout = null;
+    }, 280);
+  }
+
+  protected onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = '/assets/default.png';
   }
 
   private loadCategories(): void {
@@ -159,44 +222,5 @@ export class HomePageComponent {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
-  }
-
-  protected onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = '/assets/default.png';
-  }
-
-  protected setCategoryFilter(categoryId: number | 'all'): void {
-    if (this.selectedCategoryId() === categoryId) {
-      return;
-    }
-
-    if (this.filterTransitionTimeout) {
-      clearTimeout(this.filterTransitionTimeout);
-    }
-
-    this.isFilterTransitioning.set(true);
-    this.selectedCategoryId.set(categoryId);
-
-    this.filterTransitionTimeout = setTimeout(() => {
-      this.isFilterTransitioning.set(false);
-      this.filterTransitionTimeout = null;
-    }, 280);
-  }
-
-  protected isCategoryFilterActive(categoryId: number | 'all'): boolean {
-    return this.selectedCategoryId() === categoryId;
-  }
-
-  protected onFilterSelect(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const value = select.value;
-    const categoryId = value === 'all' ? 'all' : Number(value);
-
-    if (categoryId !== 'all' && Number.isNaN(categoryId)) {
-      return;
-    }
-
-    this.setCategoryFilter(categoryId);
   }
 }

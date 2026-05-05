@@ -1,0 +1,46 @@
+<section id="productos" class="site-section home-featured">
+  <div class="site-container">
+    <div class="site-section-heading">
+      <p class="site-eyebrow">Productos</p>
+      <h2>Encuentra todos nuestros productos en un solo lugar.</h2>
+      <p>Filtra por categoría y descubre opciones para regalar, decorar o celebrar.</p>
+    </div>
+
+    <div class="home-featured__filters">
+      <div class="home-featured__filter-select">
+        <label for="category-filter-select" class="visually-hidden">Filtrar categoría</label>
+        <select id="category-filter-select" (change)="onFilterSelect($event)" [value]="selectedFilterId">
+          <option *ngFor="let filter of filters" [value]="filter.id">
+            {{ filter.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="home-featured__filter-chips">
+        <button *ngFor="let filter of filters" type="button" class="home-filter-chip"
+          [class.active]="isFilterActive(filter.id)" (click)="onFilterClick(filter.id)">
+          {{ filter.label }}
+        </button>
+      </div>
+    </div>
+
+    <div class="site-grid site-grid--three home-featured__grid"
+      [class.home-featured__grid--transitioning]="isTransitioning">
+      <article *ngFor="let product of products" class="site-card product-card">
+        <img [src]="product.image" [alt]="product.name" class="site-image product-card__image"
+          (error)="onImageError($event)" />
+        <div class="site-card__body">
+          <span class="product-card__badge">{{ product.badge }}</span>
+          <h3>{{ product.name }}</h3>
+          <p class="product-card__description">{{ product.description }}</p>
+          <div class="product-card__meta">
+            <span class="site-price">{{ formatPrice(product.price) }}</span>
+          </div>
+          <a [routerLink]="['/producto', product.slug]" class="site-button site-button--primary">
+            Ver detalle
+          </a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,30 @@
+<section class="site-section home-story">
+  <div class="site-container">
+    <div class="home-story__header">
+      <p class="site-eyebrow">Esencia de marca</p>
+      <h2 class="site-title">Tradición, naturaleza, sostenibilidad e innovación en una sola experiencia.</h2>
+      <p class="home-story__lead">
+        Cada flor nace de una historia familiar que valora la calidad, el cuidado del proceso y
+        la emoción de acompañar momentos importantes.
+      </p>
+    </div>
+
+    <div class="home-story__grid">
+      <blockquote class="home-story__quote">
+        <span class="home-story__quote-mark" aria-hidden="true">&ldquo;</span>
+        <p>Más de 40 años cultivando la belleza y frescura de las flores colombianas, llevando la pasión de nuestra tierra a cada rincón del mundo.</p>
+        <footer class="home-story__quote-footer">
+          <span class="home-story__quote-line"></span>
+          <span>Flores Colón</span>
+        </footer>
+      </blockquote>
+
+      <div class="home-story__commitments">
+        <article *ngFor="let commitment of commitments" class="home-story__commitment">
+          <span class="home-story__commitment-dot" aria-hidden="true"></span>
+          <p>{{ commitment }}</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>

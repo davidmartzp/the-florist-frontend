@@ -1,0 +1,163 @@
+.banner-carousel {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+  background: #343b2b;
+}
+
+.banner-carousel__viewport {
+  position: absolute;
+  inset: 0;
+}
+
+.banner-carousel__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 900ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+
+  &.active {
+    opacity: 1;
+    z-index: 2;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.banner-carousel__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 26, 26, 0.15) 0%,
+    rgba(26, 26, 26, 0.05) 40%,
+    rgba(26, 26, 26, 0.2) 100%
+  );
+  z-index: 3;
+  pointer-events: none;
+}
+
+.banner-carousel__controls {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.banner-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    background-color 250ms ease,
+    border-color 250ms ease,
+    transform 250ms ease;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.45);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.96);
+  }
+
+  &--prev {
+    left: 1rem;
+  }
+
+  &--next {
+    right: 1rem;
+  }
+}
+
+/* Franja verde marca con CTA debajo del banner */
+.banner-cta-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem 1rem;
+  background: #343b2b;
+  margin-bottom: 2rem;
+}
+
+.banner-cta-bar__button {
+  padding: 0.9rem 2.4rem;
+  font-size: 1rem;
+  background: #bf5b0a;
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+  text-decoration: none;
+  border-radius: 999px;
+  font-family: var(--site-font-body);
+  font-weight: 600;
+  transition: background-color 250ms ease, transform 250ms ease;
+
+  &:hover {
+    background: #a34d08;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 720px) {
+  .banner-carousel {
+    height: 340px;
+  }
+
+  .banner-carousel__arrow {
+    width: 2.4rem;
+    height: 2.4rem;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    &--prev {
+      left: 0.6rem;
+    }
+
+    &--next {
+      right: 0.6rem;
+    }
+  }
+
+  .banner-cta-bar {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .banner-cta-bar__button {
+    padding: 0.8rem 2rem;
+    font-size: 0.95rem;
+  }
+}

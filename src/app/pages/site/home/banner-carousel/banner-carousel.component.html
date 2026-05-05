@@ -1,0 +1,45 @@
+<section class="banner-carousel" *ngIf="slides.length">
+  <div class="banner-carousel__viewport">
+    <div
+      class="banner-carousel__slide"
+      *ngFor="let slide of slides; let i = index"
+      [class.active]="i === currentIndex()"
+      [class.entering]="i === currentIndex() && isTransitioning()"
+      [attr.aria-hidden]="i !== currentIndex()"
+    >
+      <img [src]="slide.image" [alt]="slide.alt" loading="eager" />
+    </div>
+  </div>
+
+  <div class="banner-carousel__overlay" aria-hidden="true"></div>
+
+  <div class="banner-carousel__controls">
+    <button
+      type="button"
+      class="banner-carousel__arrow banner-carousel__arrow--prev"
+      (click)="prevSlide()"
+      aria-label="Imagen anterior"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="banner-carousel__arrow banner-carousel__arrow--next"
+      (click)="nextSlide()"
+      aria-label="Imagen siguiente"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+  </div>
+</section>
+
+<div class="banner-cta-bar">
+  <a href="#productos" class="site-button banner-cta-bar__button">
+    Ver productos
+  </a>
+</div>

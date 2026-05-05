@@ -8,9 +8,15 @@ export interface SiteCheckoutPayload {
   customerName: string;
   customerPhone: string;
   customerEmail: string;
-  deliveryAddress?: string;
+  billingDocument: string;
+  billingCity: string;
+  deliveryAddress: string;
   cardMessage?: string;
   shippingMethodId?: number | null;
+  receiverName: string;
+  receiverPhone: string;
+  cardSignature?: string;
+  deliveryDate: string;
   returnUrl?: string;
 }
 

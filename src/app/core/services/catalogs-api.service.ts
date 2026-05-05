@@ -22,7 +22,7 @@ export class CatalogsApiService {
     return this.http.patch<Catalog>(`${this.apiUrl}/${catalogId}`, payload);
   }
 
-  remove(catalogId: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${catalogId}`);
+  toggleActive(catalogId: number): Observable<{ message: string; isActive: boolean }> {
+    return this.http.patch<{ message: string; isActive: boolean }>(`${this.apiUrl}/${catalogId}/toggle-active`, {});
   }
 }

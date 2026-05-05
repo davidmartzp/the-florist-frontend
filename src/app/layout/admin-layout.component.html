@@ -14,7 +14,7 @@
             *ngFor="let item of navItems()"
             [routerLink]="item.route"
             routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+            [routerLinkActiveOptions]="{ exact: item.route === '/admin-flowers' }"
           >
             <span class="nav-item-label">{{ item.label }}</span>
           </a>

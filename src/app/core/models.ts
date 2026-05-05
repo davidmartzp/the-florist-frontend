@@ -44,6 +44,7 @@ export interface Category {
   name: string;
   slug: string;
   description: string | null;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -62,6 +63,7 @@ export interface Tag {
   id: number;
   name: string;
   slug: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -76,6 +78,7 @@ export interface Product {
   description: string | null;
   image: string | null;
   type: 'GENERAL' | 'COMPLEMENT' | 'MEMBERSHIP';
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
   categories: Category[];
@@ -135,14 +138,24 @@ export interface Order {
   customerName: string | null;
   customerEmail: string | null;
   customerPhone: string | null;
+  billingDocument: string | null;
+  billingDocumentType: 'CC' | 'CE' | 'NIT' | 'PASAPORTE' | null;
+  billingCity: string | null;
+  billingAddress: string | null;
   shippingAddress: string | null;
   includesCard: boolean;
   cardMessage: string | null;
+  receiverName: string | null;
+  receiverPhone: string | null;
+  cardSignature: string | null;
+  deliveryDate: string | null;
   shipping: OrderShipping | null;
   subtotal: number;
   taxTotal: number;
   total: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  isPaid: boolean;
+  isActive: boolean;
   paymentProvider: string | null;
   paymentReference: string | null;
   createdAt: string;

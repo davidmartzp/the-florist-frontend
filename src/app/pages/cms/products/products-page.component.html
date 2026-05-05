@@ -5,57 +5,94 @@
       <p class="page-subtitle">Catálogo de la tienda — precios, stock, IVA y relaciones</p>
     </div>
     <div class="page-header__actions">
-      <button type="button" class="filter-toggle-btn" [class.active]="filtersExpanded()" (click)="filtersExpanded.set(!filtersExpanded())">
+      <button type="button" class="filter-toggle-btn" [class.active]="filtersExpanded()"
+        (click)="filtersExpanded.set(!filtersExpanded())">
         Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
       </button>
       <button type="button" class="action-button action-create" (click)="openCreateModal()">
-        <span aria-hidden="true">＋</span><span>Nuevo producto</span>
+        <i class="fas fa-plus" aria-hidden="true"></i><span>Nuevo producto</span>
       </button>
     </div>
   </header>
 
   <form [formGroup]="listForm" class="filter-panel" [class.open]="filtersExpanded()">
     <div class="filter-panel__body">
-      <label class="filter-label filter-label--wide"><span>Búsqueda</span><input type="text" formControlName="q" placeholder="Nombre o descripción..." /></label>
-      <label class="filter-label"><span>Stock</span><select formControlName="inStock"><option value="">Todos</option><option value="true">Con stock</option><option value="false">Sin stock</option></select></label>
-      <label class="filter-label"><span>Ordenar por</span><select formControlName="sortBy"><option value="createdAt">Creación</option><option value="name">Nombre</option><option value="price">Precio</option><option value="vatRate">IVA</option><option value="stock">Stock</option></select></label>
-      <label class="filter-label"><span>Dirección</span><select formControlName="sortOrder"><option value="desc">Descendente</option><option value="asc">Ascendente</option></select></label>
-      <label class="filter-label"><span>Por página</span><select formControlName="pageSize"><option [value]="10">10</option><option [value]="20">20</option><option [value]="50">50</option></select></label>
+      <label class="filter-label filter-label--wide"><span>Búsqueda</span><input type="text" formControlName="q"
+          placeholder="Nombre o descripción..." /></label>
+      <label class="filter-label"><span>Stock</span><select formControlName="inStock">
+          <option value="">Todos</option>
+          <option value="true">Con stock</option>
+          <option value="false">Sin stock</option>
+        </select></label>
+      <label class="filter-label"><span>Ordenar por</span><select formControlName="sortBy">
+          <option value="createdAt">Creación</option>
+          <option value="name">Nombre</option>
+          <option value="price">Precio</option>
+          <option value="vatRate">IVA</option>
+          <option value="stock">Stock</option>
+        </select></label>
+      <label class="filter-label"><span>Dirección</span><select formControlName="sortOrder">
+          <option value="desc">Descendente</option>
+          <option value="asc">Ascendente</option>
+        </select></label>
+      <label class="filter-label"><span>Por página</span><select formControlName="pageSize">
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select></label>
     </div>
   </form>
 
-  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
-  <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
 
   <section class="section-card">
     <div class="table-wrapper" *ngIf="response">
-        <table>
-          <thead><tr><th>Producto</th><th>Tipo</th><th>Precio</th><th>IVA</th><th>Stock</th><th>Relaciones</th><th>Acciones</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let product of response.items">
-              <td><strong>{{ product.name }}</strong><div class="muted">{{ product.description || 'Sin descripción' }}</div></td>
-              <td>{{ product.type }}</td>
-              <td>{{ product.price | currency:'COP':'symbol-narrow':'1.0-0' }}</td>
-              <td>{{ product.hasVat ? (product.vatRate + '%') : 'No aplica' }}</td>
-              <td>{{ product.stock }}</td>
-              <td>
-                <div class="badge-list">
-                  <span class="badge" *ngFor="let category of product.categories">{{ category.name }}</span>
-                  <span class="badge" *ngFor="let catalog of product.catalogs">Cat: {{ catalog.name }}</span>
-                  <span class="badge" *ngFor="let tag of product.tags">#{{ tag.name }}</span>
-                </div>
-              </td>
-              <td>
-                <div class="table-actions table-actions--compact">
-                  <button type="button" class="icon-button action-edit" (click)="editProduct(product)" title="Editar producto" aria-label="Editar producto">✎</button>
-                  <button type="button" class="icon-button action-delete" (click)="deleteProduct(product)" title="Eliminar producto" aria-label="Eliminar producto">🗑</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pagination-bar" *ngIf="response"><button type="button" class="secondary-button" (click)="changePage(-1)" [disabled]="response.pagination.page <= 1">Anterior</button><span>Página {{ response.pagination.page }} de {{ response.pagination.totalPages || 1 }}</span><button type="button" class="secondary-button" (click)="changePage(1)" [disabled]="response.pagination.page >= response.pagination.totalPages">Siguiente</button></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Tipo</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Relaciones</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of response.items" [class.out-of-stock]="product.stock <= 0">
+            <td><strong>{{ product.name }}</strong>
+              <div class="muted">{{ product.description || 'Sin descripción' }}</div>
+            </td>
+            <td>{{ product.type }}</td>
+            <td>{{ product.price | currency:'COP':'symbol-narrow':'1.0-0' }}</td>
+            <td [class.stock-zero]="product.stock <= 0">{{ product.stock }}</td>
+            <td>
+              <div class="badge-list">
+                <span class="badge" *ngFor="let category of product.categories">{{ category.name }}</span>
+                <span class="badge" *ngFor="let catalog of product.catalogs">Cat: {{ catalog.name }}</span>
+                <span class="badge" *ngFor="let tag of product.tags">#{{ tag.name }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="table-actions table-actions--compact">
+                <button type="button" class="icon-button action-edit" (click)="editProduct(product)"
+                  title="Editar producto" aria-label="Editar producto"><i class="fas fa-pen"></i></button>
+                <button type="button" class="icon-button" [class.action-delete]="product.isActive"
+                  [class.action-create]="!product.isActive" (click)="toggleProductActive(product)"
+                  [title]="product.isActive ? 'Desactivar producto' : 'Activar producto'"
+                  [attr.aria-label]="product.isActive ? 'Desactivar producto' : 'Activar producto'"><i class="fas"
+                    [class.fa-eye-slash]="product.isActive" [class.fa-eye]="!product.isActive"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-bar" *ngIf="response"><button type="button" class="secondary-button" (click)="changePage(-1)"
+        [disabled]="response.pagination.page <= 1">Anterior</button><span>Página {{ response.pagination.page }} de {{
+        response.pagination.totalPages || 1 }}</span><button type="button" class="secondary-button"
+        (click)="changePage(1)"
+        [disabled]="response.pagination.page >= response.pagination.totalPages">Siguiente</button></div>
   </section>
 
   <div class="modal-backdrop" *ngIf="isFormModalOpen">
@@ -65,16 +102,22 @@
           <h3>{{ editingProductName ? ('Editar ' + editingProductName) : 'Nuevo producto' }}</h3>
           <p>Administra precio, stock, IVA, taxonomías, catálogos y tags del producto.</p>
         </div>
-        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar">✕</button>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar"
+          aria-label="Cerrar"><i class="fas fa-times"></i></button>
       </header>
 
       <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
         <div class="form-grid">
           <label><span>Nombre</span><input type="text" formControlName="name" /></label>
-          <label><span>Tipo</span><select formControlName="type"><option value="GENERAL">General</option><option value="COMPLEMENT">Complemento</option><option value="MEMBERSHIP">Membresía</option></select></label>
+          <label><span>Tipo</span><select formControlName="type">
+              <option value="GENERAL">General</option>
+              <option value="COMPLEMENT">Complemento</option>
+              <option value="MEMBERSHIP">Membresía</option>
+            </select></label>
           <label><span>Precio</span><input type="number" min="0.01" step="0.01" formControlName="price" /></label>
           <label><span>Stock</span><input type="number" min="0" step="1" formControlName="stock" /></label>
-          <label><span>IVA (%)</span><input type="number" min="0" max="100" step="0.01" formControlName="vatRate" /></label>
+          <label><span>IVA (%)</span><input type="number" min="0" max="100" step="0.01"
+              formControlName="vatRate" /></label>
           <label class="checkbox-item"><input type="checkbox" formControlName="hasVat" /><span>Aplica IVA</span></label>
           <label><span>Imagen</span><input type="text" formControlName="image" placeholder="https://..." /></label>
         </div>
@@ -84,14 +127,20 @@
         <div>
           <strong>Categorías</strong>
           <div class="checkbox-list">
-            <label class="checkbox-item" *ngFor="let category of categories"><input type="checkbox" [checked]="hasSelection('categoryIds', category.id)" (change)="toggleArraySelection('categoryIds', category.id, $any($event.target).checked)" /><span>{{ category.name }}</span></label>
+            <label class="checkbox-item" *ngFor="let category of categories"><input type="checkbox"
+                [checked]="hasSelection('categoryIds', category.id)"
+                (change)="toggleArraySelection('categoryIds', category.id, $any($event.target).checked)" /><span>{{
+                category.name }}</span></label>
           </div>
         </div>
 
         <div>
           <strong>Catálogos</strong>
           <div class="checkbox-list">
-            <label class="checkbox-item" *ngFor="let catalog of catalogs"><input type="checkbox" [checked]="hasSelection('catalogIds', catalog.id)" (change)="toggleArraySelection('catalogIds', catalog.id, $any($event.target).checked)" /><span>{{ catalog.name }}</span></label>
+            <label class="checkbox-item" *ngFor="let catalog of catalogs"><input type="checkbox"
+                [checked]="hasSelection('catalogIds', catalog.id)"
+                (change)="toggleArraySelection('catalogIds', catalog.id, $any($event.target).checked)" /><span>{{
+                catalog.name }}</span></label>
           </div>
         </div>
 
@@ -99,15 +148,21 @@
           <strong>Tags</strong>
           <div [formGroup]="tagForm" class="item-row">
             <input type="text" formControlName="name" placeholder="Nuevo tag" />
-            <button type="button" class="action-button action-create" (click)="createTag()"><span aria-hidden="true">＋</span><span>Agregar tag</span></button>
+            <button type="button" class="action-button action-create" (click)="createTag()"><i class="fas fa-plus"
+                aria-hidden="true"></i><span>Agregar tag</span></button>
           </div>
           <div class="badge-list">
             <span class="badge" *ngFor="let tag of availableTags">
               <label class="checkbox-item">
-                <input type="checkbox" [checked]="hasSelection('tagIds', tag.id)" (change)="toggleArraySelection('tagIds', tag.id, $any($event.target).checked)" />
+                <input type="checkbox" [checked]="hasSelection('tagIds', tag.id)"
+                  (change)="toggleArraySelection('tagIds', tag.id, $any($event.target).checked)" />
                 <span>#{{ tag.name }}</span>
               </label>
-              <button type="button" class="icon-button action-delete" (click)="deleteTag(tag)" title="Eliminar tag" aria-label="Eliminar tag">✕</button>
+              <button type="button" class="icon-button" [class.action-delete]="tag.isActive"
+                [class.action-create]="!tag.isActive" (click)="toggleTagActive(tag)"
+                [title]="tag.isActive ? 'Desactivar tag' : 'Activar tag'"
+                [attr.aria-label]="tag.isActive ? 'Desactivar tag' : 'Activar tag'"><i class="fas"
+                  [class.fa-eye-slash]="tag.isActive" [class.fa-eye]="!tag.isActive"></i></button>
             </span>
           </div>
         </div>
@@ -116,7 +171,14 @@
           <h3>Histórico de precio</h3>
           <div class="table-wrapper">
             <table>
-              <thead><tr><th>Fecha</th><th>Precio</th><th>IVA</th><th>Cambio</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Precio</th>
+                  <th>IVA</th>
+                  <th>Cambio</th>
+                </tr>
+              </thead>
               <tbody>
                 <tr *ngFor="let historyEntry of priceHistory">
                   <td>{{ historyEntry.createdAt | date:'short' }}</td>
@@ -130,8 +192,11 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="action-button action-create"><span aria-hidden="true">{{ editingProductName ? '✓' : '＋' }}</span><span>{{ editingProductName ? 'Guardar cambios' : 'Crear producto' }}</span></button>
-          <button type="button" class="action-button action-neutral" (click)="resetForm()"><span aria-hidden="true">✕</span><span>Cancelar</span></button>
+          <button type="submit" class="action-button action-create"><i class="fas" [class.fa-check]="editingProductName"
+              [class.fa-plus]="!editingProductName" aria-hidden="true"></i><span>{{ editingProductName ? 'Guardar
+              cambios' : 'Crear producto' }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><i class="fas fa-times"
+              aria-hidden="true"></i><span>Cancelar</span></button>
         </div>
       </form>
     </section>

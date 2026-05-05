@@ -26,7 +26,7 @@ export class UsersApiService {
     return this.http.patch<User>(`${this.apiUrl}/${userId}`, payload);
   }
 
-  deactivate(userId: number): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${userId}/deactivate`, {});
+  toggleActive(userId: number): Observable<User> {
+    return this.http.patch<User>(`${this.apiUrl}/${userId}/toggle-active`, {});
   }
 }

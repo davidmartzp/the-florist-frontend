@@ -7,7 +7,19 @@
 
       <nav class="site-nav" aria-label="Navegación principal">
         <a
-          *ngFor="let item of navItems"
+          *ngFor="let item of navItemsBeforeCart"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+        >
+          {{ item.label }}
+        </a>
+        <a routerLink="/carrito" class="site-nav-cart" routerLinkActive="active">
+          Carrito
+          <span class="site-nav-cart__count" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
+        </a>
+        <a
+          *ngFor="let item of navItemsAfterCart"
           [routerLink]="item.route"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: item.route === '/' }"
@@ -15,13 +27,6 @@
           {{ item.label }}
         </a>
       </nav>
-
-      <div class="site-header__actions">
-        <a routerLink="/carrito" class="site-cart">
-          <span>Carrito</span>
-          <strong>{{ cartCount() }}</strong>
-        </a>
-      </div>
     </div>
   </header>
 

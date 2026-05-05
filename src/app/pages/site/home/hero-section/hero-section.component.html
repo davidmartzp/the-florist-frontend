@@ -1,0 +1,39 @@
+<section class="site-section home-hero">
+  <div class="site-container home-hero__grid">
+    <div class="home-hero__content">
+      <p class="site-eyebrow">La Floreria by Flores Colon</p>
+      <h1 class="site-title">La magia de las flores, curada desde el cultivo.</h1>
+      <p class="site-subtitle">
+        Ramos, arreglos y detalles florales con la frescura de nuestra tierra y una sensibilidad
+        pensada para celebrar, agradecer y emocionar.
+      </p>
+
+      <div class="home-hero__actions">
+        <a href="#productos" class="site-button site-button--primary">Ver productos</a>
+      </div>
+
+      <div class="site-chip-row" *ngIf="occasions.length">
+        <span *ngFor="let occasion of occasions" class="site-chip">{{ occasion }}</span>
+      </div>
+    </div>
+
+    <div class="home-hero__visual">
+      <div class="home-hero__frame">
+        <img [src]="heroImage" alt="Bouquet floral editorial" class="site-image home-hero__image" />
+      </div>
+    </div>
+  </div>
+
+  <div class="site-container home-hero__stats-bar">
+    <div class="home-hero__stat-item" *ngFor="let item of stats">
+      <strong class="home-hero__stat-value">{{ item.value }}</strong>
+      <span class="home-hero__stat-label">{{ item.label }}</span>
+    </div>
+  </div>
+</section>
+
+<div class="home-divider">
+  <span class="home-divider__line"></span>
+  <span class="home-divider__dot" aria-hidden="true"></span>
+  <span class="home-divider__line"></span>
+</div>

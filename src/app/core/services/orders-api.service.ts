@@ -14,6 +14,10 @@ export class OrdersApiService {
     return this.http.get<PaginatedResponse<Order>>(this.apiUrl, { params: buildHttpParams(query) });
   }
 
+  export(query: Record<string, unknown>): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/export`, { params: buildHttpParams(query) });
+  }
+
   create(payload: Record<string, unknown>): Observable<Order> {
     return this.http.post<Order>(this.apiUrl, payload);
   }
@@ -22,7 +26,7 @@ export class OrdersApiService {
     return this.http.patch<Order>(`${this.apiUrl}/${orderId}`, payload);
   }
 
-  remove(orderId: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${orderId}`);
+  toggleActive(orderId: number): Observable<{ message: string; isActive: boolean }> {
+    return this.http.patch<{ message: string; isActive: boolean }>(`${this.apiUrl}/${orderId}/toggle-active`, {});
   }
 }

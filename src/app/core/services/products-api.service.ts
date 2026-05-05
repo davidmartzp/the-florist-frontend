@@ -30,7 +30,7 @@ export class ProductsApiService {
     return this.http.patch<Product>(`${this.apiUrl}/${productId}`, payload);
   }
 
-  remove(productId: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${productId}`);
+  toggleActive(productId: number): Observable<{ message: string; isActive: boolean }> {
+    return this.http.patch<{ message: string; isActive: boolean }>(`${this.apiUrl}/${productId}/toggle-active`, {});
   }
 }

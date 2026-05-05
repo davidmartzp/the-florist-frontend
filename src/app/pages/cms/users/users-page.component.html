@@ -9,7 +9,7 @@
         Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
       </button>
       <button type="button" class="action-button action-create" (click)="openCreateModal()">
-        <span aria-hidden="true">＋</span><span>Nuevo usuario</span>
+        <i class="fas fa-plus" aria-hidden="true"></i><span>Nuevo usuario</span>
       </button>
     </div>
   </header>
@@ -31,8 +31,7 @@
     </div>
   </form>
 
-  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
-  <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
 
   <section class="section-card">
     <div class="table-wrapper" *ngIf="response; else loadingUsers">
@@ -60,8 +59,8 @@
               </td>
               <td>
                 <div class="table-actions table-actions--compact">
-                  <button type="button" class="icon-button action-edit" (click)="editUser(user)" title="Editar usuario" aria-label="Editar usuario">✎</button>
-                  <button type="button" class="icon-button action-warn" (click)="deactivateUser(user)" [disabled]="!user.isActive" title="Desactivar usuario" aria-label="Desactivar usuario">⛔</button>
+                  <button type="button" class="icon-button action-edit" (click)="editUser(user)" title="Editar usuario" aria-label="Editar usuario"><i class="fas fa-pen"></i></button>
+                  <button type="button" class="icon-button" [class.action-warn]="user.isActive" [class.action-create]="!user.isActive" (click)="toggleUserActive(user)" [title]="user.isActive ? 'Desactivar usuario' : 'Activar usuario'" [attr.aria-label]="user.isActive ? 'Desactivar usuario' : 'Activar usuario'"><i class="fas" [class.fa-user-slash]="user.isActive" [class.fa-user-check]="!user.isActive"></i></button>
                 </div>
               </td>
             </tr>
@@ -83,7 +82,7 @@
           <h3>{{ editingUserId ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
           <p>Gestiona acceso interno, permisos y datos básicos del colaborador.</p>
         </div>
-        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar">✕</button>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar"><i class="fas fa-times"></i></button>
       </header>
 
       <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
@@ -105,8 +104,8 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="action-button action-create" [disabled]="isSubmitting"><span aria-hidden="true">{{ editingUserId ? '✓' : '＋' }}</span><span>{{ isSubmitting ? 'Guardando...' : (editingUserId ? 'Guardar cambios' : 'Crear usuario') }}</span></button>
-          <button type="button" class="action-button action-neutral" (click)="resetForm()"><span aria-hidden="true">✕</span><span>Cancelar</span></button>
+          <button type="submit" class="action-button action-create" [disabled]="isSubmitting"><i class="fas" [class.fa-check]="editingUserId" [class.fa-plus]="!editingUserId" aria-hidden="true"></i><span>{{ isSubmitting ? 'Guardando...' : (editingUserId ? 'Guardar cambios' : 'Crear usuario') }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><i class="fas fa-times" aria-hidden="true"></i><span>Cancelar</span></button>
         </div>
       </form>
     </section>

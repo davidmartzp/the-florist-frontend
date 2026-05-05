@@ -7,6 +7,7 @@ import { debounceTime } from 'rxjs';
 import { extractErrorMessage } from '../../../core/api.utils';
 import { Category, PaginatedResponse } from '../../../core/models';
 import { CategoriesApiService } from '../../../core/services/categories-api.service';
+import { SwalService } from '../../../core/services/swal.service';
 
 @Component({
   selector: 'app-categories-page',
@@ -17,6 +18,7 @@ import { CategoriesApiService } from '../../../core/services/categories-api.serv
 export class CategoriesPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly categoriesApi = inject(CategoriesApiService);
+  private readonly swal = inject(SwalService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected filtersExpanded = signal(false);
@@ -37,8 +39,6 @@ export class CategoriesPageComponent implements OnInit {
   protected editingCategoryId: number | null = null;
   protected editingCategoryName: string | null = null;
   protected isFormModalOpen = false;
-  protected errorMessage = '';
-  protected successMessage = '';
 
   ngOnInit(): void {
     this.listForm.valueChanges
@@ -59,7 +59,7 @@ export class CategoriesPageComponent implements OnInit {
         this.response = response;
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -77,15 +77,14 @@ export class CategoriesPageComponent implements OnInit {
 
     request$.subscribe({
       next: (category: Category) => {
-        this.successMessage = this.editingCategoryId
+        this.swal.success(this.editingCategoryId
           ? `Categoría "${category.name}" actualizada.`
-          : `Categoría "${category.name}" creada.`;
-        this.errorMessage = '';
+          : `Categoría "${category.name}" creada.`);
         this.resetForm();
         this.loadData();
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
@@ -106,18 +105,25 @@ export class CategoriesPageComponent implements OnInit {
     this.isFormModalOpen = true;
   }
 
-  protected deleteCategory(category: Category): void {
-    if (!confirm(`¿Eliminar la categoría ${category.name}?`)) {
+  protected async toggleCategoryActive(category: Category): Promise<void> {
+    const action = category.isActive ? 'desactivar' : 'activar';
+    const confirmed = await this.swal.confirm(
+      `¿${action.charAt(0).toUpperCase() + action.slice(1)} la categoría "${category.name}"?`,
+      '¿Estás seguro?',
+      'Sí, confirmar',
+      'Cancelar'
+    );
+    if (!confirmed) {
       return;
     }
 
-    this.categoriesApi.remove(category.id).subscribe({
+    this.categoriesApi.toggleActive(category.id).subscribe({
       next: () => {
-        this.successMessage = 'Categoría eliminada.';
+        this.swal.success(`Categoría "${category.name}" ${category.isActive ? 'desactivada' : 'activada'}.`);
         this.loadData(this.response?.pagination.page ?? 1);
       },
       error: (error) => {
-        this.errorMessage = extractErrorMessage(error);
+        this.swal.error(extractErrorMessage(error));
       },
     });
   }
