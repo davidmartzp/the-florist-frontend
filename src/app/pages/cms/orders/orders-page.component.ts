@@ -55,6 +55,7 @@ export class OrdersPageComponent implements OnInit {
     customerPhone: this.fb.nonNullable.control('', [Validators.required]),
     billingDocument: this.fb.nonNullable.control('', [Validators.required]),
     billingDocumentType: this.fb.nonNullable.control('', [Validators.required]),
+    orderDate: this.fb.nonNullable.control(this.todayString()),
     billingCity: this.fb.nonNullable.control('', [Validators.required]),
     billingAddress: '',
     shippingAddress: '',
@@ -98,6 +99,10 @@ export class OrdersPageComponent implements OnInit {
     otros: 'Otros',
     mercadopago: 'MercadoPago',
   };
+
+  protected todayString(): string {
+    return new Date().toISOString().slice(0, 10);
+  }
 
   protected statusLabel(status: string): string {
     return this.statusLabels[status] ?? status;
@@ -308,6 +313,7 @@ export class OrdersPageComponent implements OnInit {
 
     const customerFields = {
       userId: null,
+      orderDate: rawValue.orderDate || undefined,
       paymentProvider: rawValue.paymentProvider || undefined,
       customerName: rawValue.customerName.trim(),
       customerEmail: rawValue.customerEmail.trim() || undefined,
@@ -451,6 +457,7 @@ export class OrdersPageComponent implements OnInit {
     this.items.clear();
     this.addItem();
     this.form.reset({
+      orderDate: this.todayString(),
       customerName: '',
       customerEmail: '',
       customerPhone: '',

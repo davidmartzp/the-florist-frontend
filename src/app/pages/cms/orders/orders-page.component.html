@@ -133,6 +133,7 @@
       <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
         <div class="tab-panel" [class.active]="activeTab() === 'cliente'">
           <div class="form-grid">
+            <label *ngIf="!editingOrderId"><span>Fecha de la orden</span><input type="date" formControlName="orderDate" /></label>
             <label><span>Nombre cliente</span><input type="text" formControlName="customerName"
                 placeholder="Quién recibe el pedido" /></label>
             <label><span>Email cliente</span><input type="email" formControlName="customerEmail"
