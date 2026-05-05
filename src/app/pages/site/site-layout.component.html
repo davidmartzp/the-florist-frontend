@@ -6,24 +6,16 @@
       </a>
 
       <nav class="site-nav" aria-label="Navegación principal">
-        <a
-          *ngFor="let item of navItemsBeforeCart"
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: item.route === '/' }"
-        >
+        <a *ngFor="let item of navItemsBeforeCart" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/' }">
           {{ item.label }}
         </a>
         <a routerLink="/carrito" class="site-nav-cart" routerLinkActive="active">
           Carrito
           <span class="site-nav-cart__count" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
         </a>
-        <a
-          *ngFor="let item of navItemsAfterCart"
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: item.route === '/' }"
-        >
+        <a *ngFor="let item of navItemsAfterCart" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/' }">
           {{ item.label }}
         </a>
       </nav>
@@ -50,7 +42,6 @@
           <h3>Compra</h3>
           <nav aria-label="Navegación de compra">
             <a routerLink="/" fragment="productos">Ver productos</a>
-            <a routerLink="/" fragment="productos">Destacados</a>
             <a routerLink="/carrito">Carrito</a>
             <a routerLink="/checkout">Checkout</a>
           </nav>
@@ -60,7 +51,6 @@
           <h3>Servicio</h3>
           <ul>
             <li>Entregas en Bogotá</li>
-            <li>Empaque especial</li>
             <li>Tarjeta personalizada</li>
           </ul>
         </div>
@@ -79,9 +69,10 @@
               </a>
             </li>
             <li>
-              <a href="tel:+573168758525">
-                <span class="site-footer__icon" aria-hidden="true">&#9742;</span>
-                +57 316 8758525
+              <a href="https://maps.google.com/?q=Calle+81a+%23+8-13+local+7+segundo+piso+casa+octava" target="_blank"
+                rel="noopener noreferrer">
+                <span class="site-footer__icon" aria-hidden="true">&#127968;</span>
+                Calle 81a # 8-13 local 7 segundo piso casa octava
               </a>
             </li>
             <li>
