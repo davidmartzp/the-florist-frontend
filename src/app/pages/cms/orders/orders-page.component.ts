@@ -189,10 +189,10 @@ export class OrdersPageComponent implements OnInit {
       isPaid: isPaid || undefined,
       sortBy,
       sortOrder,
-      deliveryDateFrom: deliveryDateFrom || undefined,
-      deliveryDateTo: deliveryDateTo || undefined,
-      orderDateFrom: orderDateFrom || undefined,
-      orderDateTo: orderDateTo || undefined,
+      deliveryDateFrom: deliveryDateFrom ? `${deliveryDateFrom}T00:00:00` : undefined,
+      deliveryDateTo: deliveryDateTo ? `${deliveryDateTo}T23:59:59` : undefined,
+      orderDateFrom: orderDateFrom ? `${orderDateFrom}T00:00:00` : undefined,
+      orderDateTo: orderDateTo ? `${orderDateTo}T23:59:59` : undefined,
     }).subscribe({
       next: (response) => {
         this.response = response;
@@ -456,6 +456,20 @@ export class OrdersPageComponent implements OnInit {
     });
   }
 
+  protected resetListFilters(): void {
+    this.listForm.reset({
+      status: '',
+      isPaid: '',
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      pageSize: 10,
+      deliveryDateFrom: '',
+      deliveryDateTo: '',
+      orderDateFrom: '',
+      orderDateTo: '',
+    }, { emitEvent: true });
+  }
+
   protected resetForm(): void {
     this.form.enable({ emitEvent: false });
     this.editingOrder = null;
@@ -500,10 +514,10 @@ export class OrdersPageComponent implements OnInit {
       isPaid: isPaid || undefined,
       sortBy,
       sortOrder,
-      deliveryDateFrom: deliveryDateFrom || undefined,
-      deliveryDateTo: deliveryDateTo || undefined,
-      orderDateFrom: orderDateFrom || undefined,
-      orderDateTo: orderDateTo || undefined,
+      deliveryDateFrom: deliveryDateFrom ? `${deliveryDateFrom}T00:00:00` : undefined,
+      deliveryDateTo: deliveryDateTo ? `${deliveryDateTo}T23:59:59` : undefined,
+      orderDateFrom: orderDateFrom ? `${orderDateFrom}T00:00:00` : undefined,
+      orderDateTo: orderDateTo ? `${orderDateTo}T23:59:59` : undefined,
     }).subscribe({
       next: async (orders) => {
         this.exporting.set(false);

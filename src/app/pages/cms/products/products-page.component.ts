@@ -258,6 +258,16 @@ export class ProductsPageComponent implements OnInit {
     return (this.form.controls[controlName].getRawValue() as number[]).includes(value);
   }
 
+  protected resetListFilters(): void {
+    this.listForm.reset({
+      q: '',
+      inStock: '',
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      pageSize: 10,
+    }, { emitEvent: true });
+  }
+
   protected resetForm(): void {
     this.editingProductId = null;
     this.editingProductName = null;

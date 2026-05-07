@@ -21,6 +21,11 @@
   </header>
 
   <form [formGroup]="listForm" class="filter-panel" [class.open]="filtersExpanded()">
+    <div class="filter-panel__body" style="align-items: flex-end;">
+      <button type="button" class="action-button action-neutral" (click)="resetListFilters()">
+        <i class="fas fa-eraser" aria-hidden="true"></i><span>Limpiar filtros</span>
+      </button>
+    </div>
     <div class="filter-panel__body">
       <label class="filter-label"><span>Estado</span><select formControlName="status">
           <option value="">Todos</option>
