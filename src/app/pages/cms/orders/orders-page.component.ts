@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
 
+
 import { extractErrorMessage } from '../../../core/api.utils';
 import { Order, PaginatedResponse, Product, ShippingMethod } from '../../../core/models';
 import { OrdersApiService } from '../../../core/services/orders-api.service';
@@ -47,6 +48,10 @@ export class OrdersPageComponent implements OnInit {
     sortBy: 'createdAt',
     sortOrder: 'desc' as 'asc' | 'desc',
     pageSize: 10,
+    deliveryDateFrom: '',
+    deliveryDateTo: '',
+    orderDateFrom: '',
+    orderDateTo: '',
   });
 
   protected readonly form = this.fb.nonNullable.group({
@@ -176,7 +181,7 @@ export class OrdersPageComponent implements OnInit {
   }
 
   protected loadOrders(page = this.response?.pagination.page ?? 1): void {
-    const { status, isPaid, sortBy, sortOrder, pageSize } = this.listForm.getRawValue();
+    const { status, isPaid, sortBy, sortOrder, pageSize, deliveryDateFrom, deliveryDateTo, orderDateFrom, orderDateTo } = this.listForm.getRawValue();
     this.ordersApi.list({
       page,
       pageSize,
@@ -184,6 +189,10 @@ export class OrdersPageComponent implements OnInit {
       isPaid: isPaid || undefined,
       sortBy,
       sortOrder,
+      deliveryDateFrom: deliveryDateFrom || undefined,
+      deliveryDateTo: deliveryDateTo || undefined,
+      orderDateFrom: orderDateFrom || undefined,
+      orderDateTo: orderDateTo || undefined,
     }).subscribe({
       next: (response) => {
         this.response = response;
@@ -485,11 +494,20 @@ export class OrdersPageComponent implements OnInit {
   protected exportExcel(): void {
     if (this.exporting()) return;
     this.exporting.set(true);
-    const { status, isPaid, sortBy, sortOrder } = this.listForm.getRawValue();
-    this.ordersApi.export({ status, isPaid: isPaid || undefined, sortBy, sortOrder }).subscribe({
-      next: (orders) => {
+    const { status, isPaid, sortBy, sortOrder, deliveryDateFrom, deliveryDateTo, orderDateFrom, orderDateTo } = this.listForm.getRawValue();
+    this.ordersApi.export({
+      status,
+      isPaid: isPaid || undefined,
+      sortBy,
+      sortOrder,
+      deliveryDateFrom: deliveryDateFrom || undefined,
+      deliveryDateTo: deliveryDateTo || undefined,
+      orderDateFrom: orderDateFrom || undefined,
+      orderDateTo: orderDateTo || undefined,
+    }).subscribe({
+      next: async (orders) => {
         this.exporting.set(false);
-        this.downloadCsv(orders);
+        await this.downloadExcel(orders);
       },
       error: (error) => {
         this.exporting.set(false);
@@ -498,7 +516,9 @@ export class OrdersPageComponent implements OnInit {
     });
   }
 
-  private downloadCsv(orders: Order[]): void {
+  private async downloadExcel(orders: Order[]): Promise<void> {
+    const xlsx = await import('xlsx');
+
     const headers = [
       'Código', 'Fecha creación', 'Fecha envío', 'Estado', 'Pagado',
       'Nombre cliente', 'Email cliente', 'Teléfono cliente',
@@ -512,45 +532,41 @@ export class OrdersPageComponent implements OnInit {
       'Registrado por', 'Productos',
     ];
 
-    const rows = orders.map((o) => [
-      o.code,
-      o.createdAt,
-      o.deliveryDate ?? '',
-      this.statusLabel(o.status),
-      o.isPaid ? 'Sí' : 'No',
-      o.customerName ?? '',
-      o.customerEmail ?? '',
-      o.customerPhone ?? '',
-      o.billingDocumentType ?? '',
-      o.billingDocument ?? '',
-      o.billingCity ?? '',
-      o.shipping?.name ?? '',
-      o.shippingAddress ?? '',
-      o.receiverName ?? '',
-      o.receiverPhone ?? '',
-      o.includesCard ? 'Sí' : 'No',
-      o.cardMessage ?? '',
-      o.cardSignature ?? '',
-      o.shipping?.price ?? 0,
-      o.shipping?.includesPrice ? 'Sí' : 'No',
-      o.subtotal,
-      o.taxTotal,
-      o.total,
-      o.paymentProvider ?? '',
-      o.paymentReference ?? '',
-      o.user ? `${o.user.firstName} ${o.user.lastName}` : '',
-      o.items.map((i) => `${i.productName} x${i.quantity}`).join(' | '),
-    ]);
+    const rows = orders.map((o) => ({
+      'Código': o.code,
+      'Fecha creación': o.createdAt,
+      'Fecha envío': o.deliveryDate ?? '',
+      'Estado': this.statusLabel(o.status),
+      'Pagado': o.isPaid ? 'Sí' : 'No',
+      'Nombre cliente': o.customerName ?? '',
+      'Email cliente': o.customerEmail ?? '',
+      'Teléfono cliente': o.customerPhone ?? '',
+      'Tipo documento': o.billingDocumentType ?? '',
+      'Documento': o.billingDocument ?? '',
+      'Ciudad': o.billingCity ?? '',
+      'Método de envío': o.shipping?.name ?? '',
+      'Dirección de envío': o.shippingAddress ?? '',
+      'Nombre receptor': o.receiverName ?? '',
+      'Teléfono receptor': o.receiverPhone ?? '',
+      'Tiene tarjeta': o.includesCard ? 'Sí' : 'No',
+      'Mensaje tarjeta': o.cardMessage ?? '',
+      'Firma tarjeta': o.cardSignature ?? '',
+      'Precio envío': o.shipping?.price ?? 0,
+      'Suma envío al total': o.shipping?.includesPrice ? 'Sí' : 'No',
+      'Subtotal': o.subtotal,
+      'IVA': o.taxTotal,
+      'Total': o.total,
+      'Proveedor de pago': o.paymentProvider ?? '',
+      'Referencia de pago': o.paymentReference ?? '',
+      'Registrado por': o.user ? `${o.user.firstName} ${o.user.lastName}` : '',
+      'Productos': o.items.map((i) => `${i.productName} x${i.quantity}`).join(' | '),
+    }));
 
-    const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const csv = [headers, ...rows].map((row) => row.map(escape).join(',')).join('\r\n');
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ordenes-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const ws = xlsx.utils.json_to_sheet(rows, { header: headers });
+    const wb = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(wb, ws, 'Órdenes');
+    const fileName = `ordenes-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    xlsx.writeFile(wb, fileName);
   }
 
   protected changePage(direction: number): void {
