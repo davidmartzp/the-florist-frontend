@@ -27,7 +27,7 @@ jobs:
         uses: burnett01/rsync-deployments@7.0.2
         with:
           switches: -avzr --delete
-          path: dist/florist-frontend/browser
+          path: dist/florist-frontend/Frontend
           remote_path: /home/tvey5zvgkzx7/public_html/
           remote_host: ${{ secrets.CPANEL_HOST }}
           remote_user: ${{ secrets.CPANEL_USER }}
