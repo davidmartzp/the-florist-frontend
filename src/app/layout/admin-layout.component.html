@@ -1,7 +1,21 @@
-<div class="layout-shell">
+<div class="layout-shell" [class.menu-open]="menuOpen()">
+
+  <!-- Topbar mobile -->
+  <header class="mobile-topbar">
+    <a routerLink="/admin-flowers" class="mobile-brand">Florería Colón</a>
+    <button type="button" class="hamburger" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </header>
+
+  <!-- Backdrop -->
+  <div class="sidebar-backdrop" (click)="closeMenu()"></div>
+
   <aside class="sidebar">
     <div class="sidebar-top">
-      <a routerLink="/admin-flowers" class="brand-card">
+      <a routerLink="/admin-flowers" class="brand-card" (click)="closeMenu()">
         <span class="brand-kicker">Panel interno</span>
         <strong>Florería Colón</strong>
         <span>Gestión administrativa y operativa</span>
@@ -15,6 +29,7 @@
             [routerLink]="item.route"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: item.route === '/admin-flowers' }"
+            (click)="closeMenu()"
           >
             <span class="nav-item-label">{{ item.label }}</span>
           </a>

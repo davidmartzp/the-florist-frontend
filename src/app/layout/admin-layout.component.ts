@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { NavigationStart, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AuthService } from '../core/services/auth.service';
 
@@ -19,8 +19,11 @@ interface NavItem {
 })
 export class AdminLayoutComponent {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   protected readonly user = this.authService.currentUser;
+  protected readonly menuOpen = signal(false);
+
   protected readonly navItems = computed(() => {
     const items: NavItem[] = [
       { label: 'Resumen', route: '/admin-flowers' },
@@ -34,6 +37,22 @@ export class AdminLayoutComponent {
 
     return items.filter((item) => !item.permission || this.authService.hasPermission(item.permission));
   });
+
+  constructor() {
+    this.router.events.subscribe((e) => {
+      if (e instanceof NavigationStart) {
+        this.menuOpen.set(false);
+      }
+    });
+  }
+
+  protected toggleMenu(): void {
+    this.menuOpen.update((v) => !v);
+  }
+
+  protected closeMenu(): void {
+    this.menuOpen.set(false);
+  }
 
   protected logout(): void {
     this.authService.logout();
