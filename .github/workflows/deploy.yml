@@ -1,0 +1,35 @@
+name: Deploy Angular a cPanel
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar Angular
+        run: npm run build
+
+      - name: Subir dist a cPanel
+        uses: burnett01/rsync-deployments@7.0.2
+        with:
+          switches: -avzr --delete
+          path: dist/florist-frontend/
+          remote_path: /home/tvey5zvgkzx7/public_html/
+          remote_host: ${{ secrets.CPANEL_HOST }}
+          remote_user: ${{ secrets.CPANEL_USER }}
+          remote_port: ${{ secrets.CPANEL_PORT }}
+          remote_key: ${{ secrets.CPANEL_SSH_KEY }}
