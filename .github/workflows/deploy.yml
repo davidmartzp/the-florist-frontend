@@ -21,14 +21,14 @@ jobs:
         run: npm ci
 
       - name: Compilar Angular
-        run: npm run build
+        run: npm run build -- --base-href /Frontend/
 
       - name: Subir dist a cPanel
         uses: burnett01/rsync-deployments@7.0.2
         with:
           switches: -avzr --delete
-          path: dist/florist-frontend/browser
-          remote_path: /home/tvey5zvgkzx7/public_html/Frontend
+          path: dist/florist-frontend/browser/
+          remote_path: /home/tvey5zvgkzx7/public_html/Frontend/
           remote_host: ${{ secrets.CPANEL_HOST }}
           remote_user: ${{ secrets.CPANEL_USER }}
           remote_port: ${{ secrets.CPANEL_PORT }}
