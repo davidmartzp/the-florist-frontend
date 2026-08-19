@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 
+import { SiteBannersApiService } from '../../../core/services/site-banners-api.service';
 import { SiteCategoriesApiService } from '../../../core/services/site-categories-api.service';
 import { SiteProductsApiService } from '../../../core/services/site-products-api.service';
 import {
@@ -39,6 +40,7 @@ interface CategoryFilter {
 })
 export class HomePageComponent {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly siteBannersApi = inject(SiteBannersApiService);
   private readonly siteCategoriesApi = inject(SiteCategoriesApiService);
   private readonly siteProductsApi = inject(SiteProductsApiService);
   private readonly selectedCategoryId = signal<number | 'all'>('all');
@@ -84,28 +86,7 @@ export class HomePageComponent {
     { value: '100%', label: 'curaduría floral propia' },
   ];
 
-  protected readonly bannerSlides: BannerSlide[] = [
-    {
-      image: 'https://lafloreriabyflorescolon.co/banners/banner_1.png',
-      mobileImage: 'https://lafloreriabyflorescolon.co/banners/banner_1.png',
-      alt: 'Banner 1 Día de la Madre - La Florería by Flores Colón',
-    },
-    {
-      image: 'https://lafloreriabyflorescolon.co/banners/banner_2.jpg',
-      mobileImage: 'https://lafloreriabyflorescolon.co/banners/banner_2_mobile.jpg',
-      alt: 'Banner 2 Día de la Madre - La Florería by Flores Colón',
-    },
-    {
-      image: 'https://lafloreriabyflorescolon.co/banners/banner_3.jpg',
-      mobileImage: 'https://lafloreriabyflorescolon.co/banners/banner_3_mobile.jpg',
-      alt: 'Banner 3 Día de la Madre - La Florería by Flores Colón',
-    },
-    {
-      image: 'https://lafloreriabyflorescolon.co/banners/banner_4.jpg',
-      mobileImage: 'https://lafloreriabyflorescolon.co/banners/banner_4_mobile.jpg',
-      alt: 'Banner 4 Día de la Madre - La Florería by Flores Colón',
-    },
-  ];
+  protected bannerSlides: BannerSlide[] = [];
 
   protected readonly occasions: string[] = [];
 
@@ -116,6 +97,7 @@ export class HomePageComponent {
       }
     });
 
+    this.loadBanners();
     this.loadCategories();
     this.loadProducts();
   }
@@ -159,6 +141,21 @@ export class HomePageComponent {
   protected onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = '/assets/default.png';
+  }
+
+  private loadBanners(): void {
+    this.siteBannersApi.list().subscribe({
+      next: (banners) => {
+        this.bannerSlides = banners.map((banner) => ({
+          image: banner.desktopImage ?? '',
+          mobileImage: banner.mobileImage ?? undefined,
+          alt: banner.title,
+        }));
+      },
+      error: () => {
+        this.bannerSlides = [];
+      },
+    });
   }
 
   private loadCategories(): void {

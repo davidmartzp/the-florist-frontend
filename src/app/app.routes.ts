@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { AdminLayoutComponent } from './layout/admin-layout.component';
+import { BannersPageComponent } from './pages/cms/banners/banners-page.component';
 import { CatalogsPageComponent } from './pages/cms/catalogs/catalogs-page.component';
 import { CategoriesPageComponent } from './pages/cms/categories/categories-page.component';
 import { DashboardPageComponent } from './pages/cms/dashboard/dashboard-page.component';
@@ -32,6 +33,7 @@ export const routes: Routes = [
           { path: 'users', component: UsersPageComponent, canActivate: [permissionGuard], data: { permission: 'USERS' } },
           { path: 'categories', component: CategoriesPageComponent, canActivate: [permissionGuard], data: { permission: 'PRODUCTS' } },
           { path: 'catalogs', component: CatalogsPageComponent, canActivate: [permissionGuard], data: { permission: 'PRODUCTS' } },
+          { path: 'banners', component: BannersPageComponent, canActivate: [permissionGuard], data: { permission: 'ADMIN' } },
           { path: 'products', component: ProductsPageComponent, canActivate: [permissionGuard], data: { permission: 'PRODUCTS' } },
           { path: 'shipping-methods', component: ShippingMethodsPageComponent, canActivate: [permissionGuard], data: { permission: 'ORDERS' } },
           { path: 'orders', component: OrdersPageComponent, canActivate: [permissionGuard], data: { permission: 'ORDERS' } },

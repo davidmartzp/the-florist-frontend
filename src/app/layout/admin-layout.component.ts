@@ -31,6 +31,7 @@ export class AdminLayoutComponent {
       { label: 'Categorías', route: '/admin-flowers/categories', permission: 'PRODUCTS' },
       { label: 'Catálogos', route: '/admin-flowers/catalogs', permission: 'PRODUCTS' },
       { label: 'Productos', route: '/admin-flowers/products', permission: 'PRODUCTS' },
+      { label: 'Banners', route: '/admin-flowers/banners', permission: 'ADMIN' },
       { label: 'Métodos de envío', route: '/admin-flowers/shipping-methods', permission: 'ORDERS' },
       { label: 'Órdenes', route: '/admin-flowers/orders', permission: 'ORDERS' },
     ];

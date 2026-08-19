@@ -59,6 +59,24 @@ export interface Catalog {
   updatedAt: string;
 }
 
+export interface Banner {
+  id: number;
+  title: string;
+  desktopImage: string | null;
+  mobileImage: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SiteBanner {
+  id: number;
+  title: string;
+  desktopImage: string | null;
+  mobileImage: string | null;
+}
+
 export interface Tag {
   id: number;
   name: string;

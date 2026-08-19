@@ -922,6 +922,59 @@ table tbody tr.out-of-stock td.stock-zero {
   gap: 0.7rem;
 }
 
+.image-preview {
+  width: 100%;
+  max-width: 160px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 0.65rem;
+  border: 1px solid #c4bfb2;
+  margin-top: 0.4rem;
+}
+
+.field-hint {
+  display: block;
+  font-size: 0.78rem;
+  color: #6b6559;
+  margin-top: 0.2rem;
+}
+
+.banner-preview {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 0.65rem;
+  border: 1px solid #c4bfb2;
+  margin-top: 0.4rem;
+}
+
+.banner-preview--desktop {
+  max-width: 320px;
+  aspect-ratio: 16 / 5;
+}
+
+.banner-preview--mobile {
+  max-width: 120px;
+  aspect-ratio: 3 / 4;
+}
+
+.banner-thumbs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.banner-thumb {
+  width: 64px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 0.4rem;
+  border: 1px solid #c4bfb2;
+}
+
+.banner-thumb--mobile {
+  width: 32px;
+  height: 40px;
+}
+
 .modal-body .form-actions {
   margin-top: 0.3rem;
   padding-top: 0.7rem;

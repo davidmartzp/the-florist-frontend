@@ -1,0 +1,88 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div class="page-header__title">
+      <h1 class="page-title">Banners</h1>
+      <p class="page-subtitle">Banners principales de la tienda, orden de aparición y estado de publicación</p>
+    </div>
+    <div class="page-header__actions">
+      <button type="button" class="filter-toggle-btn" [class.active]="filtersExpanded()" (click)="filtersExpanded.set(!filtersExpanded())">
+        Filtros <span class="filter-toggle-arrow" [class.rotated]="filtersExpanded()">▾</span>
+      </button>
+      <button type="button" class="action-button action-create" (click)="openCreateModal()">
+        <i class="fas fa-plus" aria-hidden="true"></i><span>Nuevo banner</span>
+      </button>
+    </div>
+  </header>
+
+  <form [formGroup]="listForm" class="filter-panel" [class.open]="filtersExpanded()">
+    <div class="filter-panel__body">
+      <label class="filter-label"><span>Ordenar por</span><select formControlName="sortBy"><option value="sortOrder">Orden</option><option value="title">Título</option><option value="isActive">Estado</option><option value="createdAt">Creación</option></select></label>
+      <label class="filter-label"><span>Dirección</span><select formControlName="sortOrder"><option value="asc">Ascendente</option><option value="desc">Descendente</option></select></label>
+      <label class="filter-label"><span>Por página</span><select formControlName="pageSize"><option [value]="10">10</option><option [value]="20">20</option><option [value]="50">50</option></select></label>
+    </div>
+  </form>
+
+  <section class="section-card">
+    <div class="table-wrapper" *ngIf="response">
+        <table>
+          <thead><tr><th>Miniaturas</th><th>Título</th><th>Orden</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let banner of response.items">
+              <td>
+                <div class="banner-thumbs">
+                  <img *ngIf="banner.desktopImage" [src]="banner.desktopImage" alt="Miniatura desktop" class="banner-thumb" />
+                  <img *ngIf="banner.mobileImage" [src]="banner.mobileImage" alt="Miniatura mobile" class="banner-thumb banner-thumb--mobile" />
+                </div>
+              </td>
+              <td>{{ banner.title }}</td>
+              <td>{{ banner.sortOrder }}</td>
+              <td><span class="status-pill">{{ banner.isActive ? 'Activo' : 'Inactivo' }}</span></td>
+              <td>
+                <div class="table-actions table-actions--compact">
+                  <button type="button" class="icon-button action-edit" (click)="editBanner(banner)" title="Editar banner" aria-label="Editar banner"><i class="fas fa-pen"></i></button>
+                  <button type="button" class="icon-button" [class.action-delete]="banner.isActive" [class.action-create]="!banner.isActive" (click)="toggleBannerActive(banner)" [title]="banner.isActive ? 'Desactivar banner' : 'Activar banner'" [attr.aria-label]="banner.isActive ? 'Desactivar banner' : 'Activar banner'"><i class="fas" [class.fa-eye-slash]="banner.isActive" [class.fa-eye]="!banner.isActive"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-bar" *ngIf="response"><button type="button" class="secondary-button" (click)="changePage(-1)" [disabled]="response.pagination.page <= 1">Anterior</button><span>Página {{ response.pagination.page }} de {{ response.pagination.totalPages || 1 }}</span><button type="button" class="secondary-button" (click)="changePage(1)" [disabled]="response.pagination.page >= response.pagination.totalPages">Siguiente</button></div>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="isFormModalOpen">
+    <section class="modal-card" role="dialog" aria-modal="true">
+      <header class="modal-header">
+        <div>
+          <h3>{{ editingBannerTitle ? ('Editar ' + editingBannerTitle) : 'Nuevo banner' }}</h3>
+          <p>Configura el título, orden de aparición e imágenes del banner.</p>
+        </div>
+        <button type="button" class="icon-button action-neutral" (click)="resetForm()" title="Cerrar" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
+        <label><span>Título</span><input type="text" formControlName="title" /></label>
+        <label><span>Orden</span><input type="number" step="1" formControlName="sortOrder" /></label>
+
+        <label>
+          <span>Imagen desktop</span>
+          <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onDesktopImageSelected($event)" />
+          <small class="field-hint">Recomendado: 1920×600px</small>
+          <img *ngIf="desktopPreviewUrl" [src]="desktopPreviewUrl" alt="Vista previa de la imagen desktop" class="banner-preview banner-preview--desktop" />
+        </label>
+
+        <label>
+          <span>Imagen mobile</span>
+          <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onMobileImageSelected($event)" />
+          <small class="field-hint">Recomendado: 750×1000px</small>
+          <img *ngIf="mobilePreviewUrl" [src]="mobilePreviewUrl" alt="Vista previa de la imagen mobile" class="banner-preview banner-preview--mobile" />
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="action-button action-create"><i class="fas" [class.fa-check]="editingBannerTitle" [class.fa-plus]="!editingBannerTitle" aria-hidden="true"></i><span>{{ editingBannerTitle ? 'Guardar cambios' : 'Crear banner' }}</span></button>
+          <button type="button" class="action-button action-neutral" (click)="resetForm()"><i class="fas fa-times" aria-hidden="true"></i><span>Cancelar</span></button>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>

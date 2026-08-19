@@ -64,6 +64,8 @@ export class ProductsPageComponent implements OnInit {
   protected editingProductName: string | null = null;
   protected isFormModalOpen = false;
   protected isLoading = false;
+  protected imagePreviewUrl: string | null = null;
+  private pendingImageFile: File | null = null;
 
   ngOnInit(): void {
     this.listForm.valueChanges
@@ -127,12 +129,31 @@ export class ProductsPageComponent implements OnInit {
       image: rawValue.image || null,
     };
 
+    const isCreating = this.editingProductId === null;
+    const imageFileToUpload = isCreating ? this.pendingImageFile : null;
+
     const request$ = this.editingProductId
       ? this.productsApi.update(this.editingProductId, payload)
       : this.productsApi.create(payload);
 
     request$.subscribe({
       next: (product: Product) => {
+        if (imageFileToUpload) {
+          this.productsApi.uploadImage(product.id, imageFileToUpload).subscribe({
+            next: () => {
+              this.swal.success(`Producto "${product.name}" creado.`);
+              this.resetForm();
+              this.loadProducts();
+            },
+            error: (error) => {
+              this.swal.error(extractErrorMessage(error));
+              this.resetForm();
+              this.loadProducts();
+            },
+          });
+          return;
+        }
+
         this.swal.success(this.editingProductId
           ? `Producto "${product.name}" actualizado.`
           : `Producto "${product.name}" creado.`);
@@ -145,10 +166,45 @@ export class ProductsPageComponent implements OnInit {
     });
   }
 
+  protected onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    if (!file) {
+      return;
+    }
+
+    if (this.editingProductId) {
+      this.productsApi.uploadImage(this.editingProductId, file).subscribe({
+        next: (product) => {
+          this.form.controls.image.setValue(product.image ?? '');
+          this.setImagePreview(product.image);
+          this.swal.success('Imagen actualizada.');
+        },
+        error: (error) => {
+          this.swal.error(extractErrorMessage(error));
+        },
+      });
+      input.value = '';
+      return;
+    }
+
+    this.pendingImageFile = file;
+    this.setImagePreview(URL.createObjectURL(file));
+  }
+
+  private setImagePreview(url: string | null): void {
+    if (this.imagePreviewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(this.imagePreviewUrl);
+    }
+    this.imagePreviewUrl = url;
+  }
+
   protected editProduct(product: Product): void {
     this.editingProductId = product.id;
     this.editingProductName = product.name;
     this.isFormModalOpen = true;
+    this.pendingImageFile = null;
+    this.setImagePreview(product.image);
     this.form.reset({
       name: product.name,
       type: product.type,
@@ -273,6 +329,8 @@ export class ProductsPageComponent implements OnInit {
     this.editingProductName = null;
     this.isFormModalOpen = false;
     this.priceHistory = [];
+    this.pendingImageFile = null;
+    this.setImagePreview(null);
     this.form.reset({
       name: '',
       type: 'GENERAL',

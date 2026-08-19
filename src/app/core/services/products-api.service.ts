@@ -33,4 +33,10 @@ export class ProductsApiService {
   toggleActive(productId: number): Observable<{ message: string; isActive: boolean }> {
     return this.http.patch<{ message: string; isActive: boolean }>(`${this.apiUrl}/${productId}/toggle-active`, {});
   }
+
+  uploadImage(productId: number, file: File): Observable<Product> {
+    const formData = new FormData();
+    formData.append('image', file);
+    return this.http.post<Product>(`${this.apiUrl}/${productId}/image`, formData);
+  }
 }
