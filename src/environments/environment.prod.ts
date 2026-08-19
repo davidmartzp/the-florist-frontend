@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiBaseUrl: '/api',
+  apiBaseUrl: 'https://lafloreriabyflorescolon.co/Backend/api',
 };
 

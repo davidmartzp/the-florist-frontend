@@ -1,0 +1,11 @@
+# Fallback de rutas para Angular (SPA). Sirve archivos/directorios reales tal
+# cual, deja pasar /Backend sin tocar (ahí vive el backend PHP en su propia
+# subcarpeta) y todo lo demás cae en index.html para que el router de Angular
+# lo resuelva.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^/Backend
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ /index.html [L]
+</IfModule>
