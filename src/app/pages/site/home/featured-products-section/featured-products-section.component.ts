@@ -75,6 +75,14 @@ export class FeaturedProductsSectionComponent {
     return this.selectedFilterId === filterId;
   }
 
+  protected trackByProductSlug(index: number, product: FeaturedProduct): string {
+    return product.slug;
+  }
+
+  protected trackByFilterId(index: number, filter: CategoryFilter): number | 'all' {
+    return filter.id;
+  }
+
   protected formatPrice(price: number): string {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',

@@ -10,14 +10,14 @@
       <div class="home-featured__filter-select">
         <label for="category-filter-select" class="visually-hidden">Filtrar categoría</label>
         <select id="category-filter-select" (change)="onFilterSelect($event)" [value]="selectedFilterId">
-          <option *ngFor="let filter of filters" [value]="filter.id">
+          <option *ngFor="let filter of filters; trackBy: trackByFilterId" [value]="filter.id">
             {{ filter.label }}
           </option>
         </select>
       </div>
 
       <div class="home-featured__filter-chips">
-        <button *ngFor="let filter of filters" type="button" class="home-filter-chip"
+        <button *ngFor="let filter of filters; trackBy: trackByFilterId" type="button" class="home-filter-chip"
           [class.active]="isFilterActive(filter.id)" (click)="onFilterClick(filter.id)">
           {{ filter.label }}
         </button>
@@ -26,7 +26,7 @@
 
     <div class="site-grid site-grid--three home-featured__grid"
       [class.home-featured__grid--transitioning]="isTransitioning">
-      <article *ngFor="let product of products" class="site-card product-card">
+      <article *ngFor="let product of products; trackBy: trackByProductSlug" class="site-card product-card">
         <img [src]="product.image" [alt]="product.name" class="site-image product-card__image"
           (error)="onImageError($event)" />
         <div class="site-card__body">

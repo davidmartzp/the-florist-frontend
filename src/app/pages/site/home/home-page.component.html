@@ -8,8 +8,8 @@
 </app-hero-section> -->
 
 <app-featured-products-section
-  [products]="featuredProducts"
-  [filters]="featuredFilters"
+  [products]="featuredProducts()"
+  [filters]="featuredFilters()"
   [selectedFilterId]="selectedCategoryFilterId()"
   [isTransitioning]="isProductFilterTransitioning()"
   (filterChange)="onCategoryFilterChange($event)"

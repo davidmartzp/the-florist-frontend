@@ -102,23 +102,23 @@ export class HomePageComponent {
     this.loadProducts();
   }
 
-  protected get featuredProducts(): FeaturedProduct[] {
-    return this.filteredProducts().map((product) => ({
+  protected readonly featuredProducts = computed<FeaturedProduct[]>(() =>
+    this.filteredProducts().map((product) => ({
       slug: product.slug,
       name: product.name,
       description: product.description,
       price: product.price,
       image: product.image,
       badge: product.badge,
-    }));
-  }
+    })),
+  );
 
-  protected get featuredFilters(): FeaturedCategoryFilter[] {
-    return this.productFilters().map((filter) => ({
+  protected readonly featuredFilters = computed<FeaturedCategoryFilter[]>(() =>
+    this.productFilters().map((filter) => ({
       id: filter.id,
       label: filter.label,
-    }));
-  }
+    })),
+  );
 
   protected onCategoryFilterChange(categoryId: number | 'all'): void {
     if (this.selectedCategoryId() === categoryId) {
@@ -140,7 +140,7 @@ export class HomePageComponent {
 
   protected onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = '/assets/default.png';
+    img.src = '/assets/default.jpeg';
   }
 
   private loadBanners(): void {
@@ -199,7 +199,7 @@ export class HomePageComponent {
             stemCount: '',
             deliveryNote: '',
             description: product.description || '',
-            image: product.image || '/assets/default.png',
+            image: product.image || '/assets/default.jpeg',
             highlights: [],
           }));
 
