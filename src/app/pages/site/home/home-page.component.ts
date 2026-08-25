@@ -31,7 +31,7 @@ interface CategoryFilter {
   imports: [
     CommonModule,
     BannerCarouselComponent,
-    // HeroSectionComponent, // oculto temporalmente
+    HeroSectionComponent,
     FeaturedProductsSectionComponent,
     StorySectionComponent,
   ],
@@ -79,6 +79,7 @@ export class HomePageComponent {
   });
   protected readonly isProductFilterTransitioning = this.isFilterTransitioning.asReadonly();
   protected readonly isLoadingProducts = this.isLoadingProductsState.asReadonly();
+  protected readonly hasNoProducts = computed(() => !this.isLoadingProducts() && this.products().length === 0);
 
   protected readonly stats: HeroStat[] = [
     { value: '40+', label: 'años de tradición familiar' },

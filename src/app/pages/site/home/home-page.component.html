@@ -1,13 +1,14 @@
 <app-banner-carousel [slides]="bannerSlides" [interval]="5000"></app-banner-carousel>
 
-<!-- Hero oculto temporalmente -->
-<!-- <app-hero-section
+<app-hero-section
+  *ngIf="hasNoProducts()"
   [heroImage]="heroImage"
   [stats]="stats"
   [occasions]="occasions">
-</app-hero-section> -->
+</app-hero-section>
 
 <app-featured-products-section
+  *ngIf="!hasNoProducts()"
   [products]="featuredProducts()"
   [filters]="featuredFilters()"
   [selectedFilterId]="selectedCategoryFilterId()"
